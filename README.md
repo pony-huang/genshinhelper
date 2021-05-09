@@ -1,7 +1,7 @@
 # 工具简介
 米哈游原神社区每日签到。
 
-仓库地址：https://github.com/PonKing66/GenshinImpact-helper
+仓库地址：https://github.com/PonKing66/genshi-helper
 
 # 使用说明
 ## 获取cookie
