@@ -12,7 +12,7 @@
 ![](./images/img_1.png)
 
 ## 添加 Cookie
-###使用 Linux Crontab 方式
+### 使用 Linux Crontab 方式
 30 10 * * * sh /home/start.sh
 
 **start.sh:**
