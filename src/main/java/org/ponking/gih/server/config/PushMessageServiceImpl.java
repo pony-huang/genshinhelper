@@ -27,7 +27,9 @@ import java.util.List;
 
 public class PushMessageServiceImpl implements PushMessageService {
 
-    private final String BASE_URI = "https://qyapi.weixin.qq.com/cgi-bin/message/send";
+    private final String BASE_URL = "https://qyapi.weixin.qq.com/cgi-bin/message/send";
+
+    private final String TOKEN_URL = "https://qyapi.weixin.qq.com/cgi-bin/message/send";
 
 
     private final WeixinCpConfig.WeiXinApp MY_APP;
@@ -41,7 +43,7 @@ public class PushMessageServiceImpl implements PushMessageService {
         try {
             List<NameValuePair> params = getBasicParams();
             params.add(new BasicNameValuePair("text", text));
-            URI uri = new URIBuilder(BASE_URI)
+            URI uri = new URIBuilder(BASE_URL)
                     .setParameters(params).build();
             AppPushTextParam param = AppPushTextParam.build(text, MY_APP.getAgentId());
             StringEntity entity = new StringEntity(JSON.toJSONString(param), StandardCharsets.UTF_8);
@@ -59,7 +61,7 @@ public class PushMessageServiceImpl implements PushMessageService {
     public Result sendWithTextCard(CardMessage message) {
         try {
             List<NameValuePair> params = getBasicParams();
-            URI uri = new URIBuilder(BASE_URI)
+            URI uri = new URIBuilder(BASE_URL)
                     .setParameters(params).build();
             AppPushTextCardParam param = AppPushTextCardParam.build(MY_APP.getAgentId(), message.getDescription(),
                     message.getTitle(), message.getUrl(), message.getBtntxt() == null ? "更多" : message.getBtntxt());
@@ -77,7 +79,7 @@ public class PushMessageServiceImpl implements PushMessageService {
     public void sendWithTextCard(String title, String text) {
         try {
             List<NameValuePair> params = getBasicParams();
-            URI uri = new URIBuilder(BASE_URI)
+            URI uri = new URIBuilder(BASE_URL)
                     .setParameters(params).build();
             AppPushTextCardParam param = AppPushTextCardParam.build(MY_APP.getAgentId(), text,
                     title, "https://github.com/PonKing66/GenshinImpact-helper", "更多");
@@ -99,7 +101,7 @@ public class PushMessageServiceImpl implements PushMessageService {
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("corpid", MY_APP.getCorpId()));
             params.add(new BasicNameValuePair("corpsecret", MY_APP.getCorpSecret()));
-            URI uri = new URIBuilder("https://qyapi.weixin.qq.com/cgi-bin/gettoken")
+            URI uri = new URIBuilder(TOKEN_URL)
                     .setParameters(params).build();
             HttpEntity httpEntity = HttpUtils.doGet(uri);
             assert httpEntity != null;
@@ -107,7 +109,9 @@ public class PushMessageServiceImpl implements PushMessageService {
         } catch (URISyntaxException | IOException e1) {
             e1.printStackTrace();
         }
-        assert result != null;
+        if (result == null) {
+            return null;
+        }
         return result.getAccessToken();
     }
 

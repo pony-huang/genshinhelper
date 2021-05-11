@@ -47,7 +47,8 @@ public class Sign {
         JSONObject result = HttpUtils.doGet(GenShinConfig.ROLE_URL, getHeaders());
         String uid = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("game_uid");
         String nickname = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("nickname");
-        logger.info("获取用户UID：{},用户名称：{}", uid,nickname);
+        logger.info("获取用户UID：{}", uid);
+        logger.info("当前用户名称：{}", nickname);
         return uid;
     }
 
@@ -72,9 +73,9 @@ public class Sign {
         StringEntity entity = new StringEntity(JSON.toJSONString(data), StandardCharsets.UTF_8);
         JSONObject signResult = HttpUtils.doPost(GenShinConfig.SIGN_URL, getHeadersWithDeviceId(), entity);
         if (signResult.getInteger("retcode") == 0) {
-            logger.info("签到成功 " + signResult.get("message"));
+            logger.info("签到成功：{}", signResult.get("message"));
         } else {
-            logger.info("签到失败 " + signResult.get("message"));
+            logger.info("签到失败：{}", signResult.get("message"));
         }
     }
 

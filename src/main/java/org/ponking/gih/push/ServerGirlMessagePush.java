@@ -20,6 +20,8 @@ public class ServerGirlMessagePush implements MessagePush {
 
     private final String scKey;
 
+    public final String SERVER_GIRL = "https://sc.ftqq.com/%s.send";
+
     public ServerGirlMessagePush(String scKey) {
         this.scKey = scKey;
     }
@@ -38,7 +40,7 @@ public class ServerGirlMessagePush implements MessagePush {
     }
 
     public String getServerGirl() {
-        return String.format(GenShinConfig.SERVER_GIRL, scKey);
+        return String.format(SERVER_GIRL, scKey);
     }
 
 }

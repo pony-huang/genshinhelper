@@ -47,4 +47,4 @@ java -jar /home/GENSHIN-HELPER.jar "${你的cookie}" "${你的企业ID}" "${你�
 # 感谢
 参考 [genshin-auto-login](https://github.com/Viole403/genshin-auto-login) 
 
-感谢 [BILIBILI-HELPER](https://github.com/JunzhouLiu/BILIBILI-HELPER) 作者，JunzhouLiu
+感谢 [BILIBILI-HELPER](https://github.com/JunzhouLiu/BILIBILI-HELPER) 作者 JunzhouLiu

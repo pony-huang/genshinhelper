@@ -28,11 +28,4 @@ public class GenShinConfig {
 
     public static final String USER_AGENT = String.format("Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/%s", APP_VERSION);
 
-    /**
-     * other
-     **/
-    public static final String SERVER_GIRL = "https://sc.ftqq.com/%s.send";
-
-    public static String SCKEY = "";
-
 }
