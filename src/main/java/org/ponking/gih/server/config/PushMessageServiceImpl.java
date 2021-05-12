@@ -29,7 +29,7 @@ public class PushMessageServiceImpl implements PushMessageService {
 
     private final String BASE_URL = "https://qyapi.weixin.qq.com/cgi-bin/message/send";
 
-    private final String TOKEN_URL = "https://qyapi.weixin.qq.com/cgi-bin/message/send";
+    private final String TOKEN_URL = "https://qyapi.weixin.qq.com/cgi-bin/gettoken";
 
 
     private final WeixinCpConfig.WeiXinApp MY_APP;
@@ -82,7 +82,7 @@ public class PushMessageServiceImpl implements PushMessageService {
             URI uri = new URIBuilder(BASE_URL)
                     .setParameters(params).build();
             AppPushTextCardParam param = AppPushTextCardParam.build(MY_APP.getAgentId(), text,
-                    title, "https://github.com/PonKing66/GenshinImpact-helper", "更多");
+                    title, "https://github.com/PonKing66/genshi-helper", "更多");
             StringEntity entity = new StringEntity(JSON.toJSONString(param), StandardCharsets.UTF_8);
             HttpEntity httpEntity = HttpUtils.doPost(uri, entity);
             assert httpEntity != null;
