@@ -4,7 +4,6 @@ import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.ponking.gih.GenShinConfig;
 import org.ponking.gih.util.HttpUtils;
 
 import java.net.URI;

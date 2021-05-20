@@ -1,7 +1,9 @@
-package org.ponking.gih;
+package org.ponking.gih.gs;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.NameValuePair;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -40,6 +43,7 @@ public class Sign {
 //            logger.info("已经签到！无需在签到...");
 //            return;
 //        }
+        isSigned(uid);
         doSign(uid);
     }
 
@@ -52,6 +56,17 @@ public class Sign {
         return uid;
     }
 
+    public Award getAwardInfo(int day) {
+        Map<String, String> data = new HashMap<>();
+        data.put("act_id", GenShinConfig.ACT_ID);
+        data.put("region", GenShinConfig.REGION);
+        JSONObject awardResult = HttpUtils.doGet(GenShinConfig.AWARD_URL, getHeadersWithDeviceId());
+        JSONArray jsonArray = awardResult.getJSONObject("data").getJSONArray("awards");
+        List<Award> awards = JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<Award>>() {
+        });
+        return awards.get(day - 1);
+    }
+
     public boolean isSigned(String uid) throws URISyntaxException {
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("act_id", GenShinConfig.ACT_ID));
@@ -60,8 +75,17 @@ public class Sign {
         URI uri = new URIBuilder(GenShinConfig.INFO_URL)
                 .setParameters(params).build();
         JSONObject signInfoResult = HttpUtils.doGet(uri, getHeadersWithDeviceId());
-        logger.info("是否已签到:" + signInfoResult.getJSONObject("data").getBoolean("is_sign"));
-        return signInfoResult.getJSONObject("data").getBoolean("is_sign");
+
+        LocalDateTime time = LocalDateTime.now();
+        Boolean isSign = signInfoResult.getJSONObject("data").getBoolean("is_sign");
+        Integer totalSignDay = signInfoResult.getJSONObject("data").getInteger("total_sign_day");
+        int day = isSign ? totalSignDay : totalSignDay + 1;
+        Award award = getAwardInfo(day);
+
+        logger.info("{}月已签到{}天", time.getMonth().getValue(), totalSignDay);
+        logger.info("今天{}签到可获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
+//        logger.info("是否已签到:" + signInfoResult.getJSONObject("data").getBoolean("is_sign"));
+        return isSign;
     }
 
 

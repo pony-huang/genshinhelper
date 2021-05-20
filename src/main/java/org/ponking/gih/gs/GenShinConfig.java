@@ -1,4 +1,4 @@
-package org.ponking.gih;
+package org.ponking.gih.gs;
 
 /**
  * @Author ponking
@@ -22,7 +22,7 @@ public class GenShinConfig {
 
     public static final String ROLE_URL = String.format("https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=%s", "hk4e_cn");
 
-    public static final String INFO_URL = "https://api-takumi.mihoyo.com/event/bbs_sign_reward/info?region=%s&act_id=%s&uid=%s";
+    public static final String INFO_URL = "https://api-takumi.mihoyo.com/event/bbs_sign_reward/info";
 
     public static final String SIGN_URL = "https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign";
 

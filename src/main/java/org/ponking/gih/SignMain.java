@@ -2,9 +2,10 @@ package org.ponking.gih;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ponking.gih.gs.Sign;
 import org.ponking.gih.push.MessagePush;
-import org.ponking.gih.push.WeixinCPMessagePush;
 import org.ponking.gih.push.ServerGirlMessagePush;
+import org.ponking.gih.push.WeixinCPMessagePush;
 import org.ponking.gih.server.config.WeixinCpConfig;
 import org.ponking.gih.util.LoadLogFileResource;
 
@@ -36,21 +37,22 @@ public class SignMain {
         int length = args.length;
         if (length == 1) {
             sign = new Sign(args[0]);
+//            WeixinCpConfig.WeiXinApp wconfig = WeixinCpConfig.getInstance();
+//            messagePush = new WeixinCPMessagePush(wconfig);
         } else if (length == 2) {
             sign = new Sign(args[0]);
             messagePush = new ServerGirlMessagePush(args[1]);
         } else if (args.length == 4) {
             sign = new Sign(args[0]);
             WeixinCpConfig.WeiXinApp wconfig = new WeixinCpConfig.WeiXinApp(args[1], args[2], args[3]);
-//            WeixinCpConfig.WeiXinApp wconfig = WeixinCpConfig.getInstance();
             messagePush = new WeixinCPMessagePush(wconfig);
         } else {
             throw new UnsupportedOperationException("参数异常");
         }
-        logger.info("mihoyo 原神签到任务开始");
+        logger.info("原神签到任务开始");
         sign.sign();
-        logger.info("mihoyo 原神签到任务完成");
-        if(length >= 2){
+        logger.info("原神签到任务完成");
+        if (length >= 2) {
             messagePush.sendMessage("原神签到日志", LoadLogFileResource.loadDailyFile());
         }
     }
