@@ -20,8 +20,6 @@ public class SignMain {
 
     private static Logger logger = LogManager.getLogger(SignMain.class.getName());
 
-    private static final boolean isHub = true;
-
     /**
      * 1. args[0]:cookie
      * 1. args[0]:cookie args[1]:scKey
@@ -37,8 +35,6 @@ public class SignMain {
         int length = args.length;
         if (length == 1) {
             genShinSign = new GenShinSign(args[0]);
-//            WeixinCpConfig.WeiXinApp wconfig = WeixinCpConfig.getInstance();
-//            messagePush = new WeixinCPMessagePush(wconfig);
         } else if (length == 2) {
             genShinSign = new GenShinSign(args[0]);
             messagePush = new ServerGirlMessagePush(args[1]);
@@ -51,8 +47,10 @@ public class SignMain {
         }
         logger.info("签到任务开始");
         try {
-            miHoYoSign = new MiHoYoSign(args[0], "2");
-            miHoYoSign.doSign();
+            if ("true".equals(System.getProperty("openHub"))) {
+                miHoYoSign = new MiHoYoSign(args[0], "2");
+                miHoYoSign.doSign();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
