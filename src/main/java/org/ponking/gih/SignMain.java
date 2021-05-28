@@ -3,6 +3,7 @@ package org.ponking.gih;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ponking.gih.gs.GenShinSign;
+import org.ponking.gih.gs.MiHoYoSign;
 import org.ponking.gih.push.MessagePush;
 import org.ponking.gih.push.ServerGirlMessagePush;
 import org.ponking.gih.push.WeixinCPMessagePush;
@@ -19,7 +20,7 @@ public class SignMain {
 
     private static Logger logger = LogManager.getLogger(SignMain.class.getName());
 
-    private static final boolean flag = true;
+    private static final boolean isHub = true;
 
     /**
      * 1. args[0]:cookie
@@ -29,8 +30,9 @@ public class SignMain {
      * @param args
      * @throws URISyntaxException
      */
-    public static void main(String[] args) throws URISyntaxException {
+    public static void main(String[] args) throws Exception {
         GenShinSign genShinSign;
+        MiHoYoSign miHoYoSign;
         MessagePush messagePush = null;
         int length = args.length;
         if (length == 1) {
@@ -48,6 +50,12 @@ public class SignMain {
             throw new UnsupportedOperationException("参数异常");
         }
         logger.info("原神签到任务开始");
+        try {
+            miHoYoSign = new MiHoYoSign(args[0], "2");
+            miHoYoSign.doSign();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         genShinSign.sign();
         logger.info("原神签到任务完成");
         if (length >= 2) {
