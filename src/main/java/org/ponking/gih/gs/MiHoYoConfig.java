@@ -42,6 +42,7 @@ public class MiHoYoConfig {
     public static final String HUB_VIEW_URL = "https://bbs-api.mihoyo.com/post/api/getPostFull?post_id=%s";
     public static final String HUB_SHARE_URL = "https://bbs-api.mihoyo.com/apihub/api/getShareConf?entity_id=%s&entity_type=1";
     public static final String HUB_VOTE_URL = "https://bbs-api.mihoyo.com/apihub/sapi/upvotePost";
+    //https://bbs-api.mihoyo.com/notification/wapi/getUserGameUnreadCount?gids=2
 
 
     public static final Hub[] GAME_LIST = new Hub[]{

@@ -49,7 +49,7 @@ public class SignMain {
         } else {
             throw new UnsupportedOperationException("参数异常");
         }
-        logger.info("原神签到任务开始");
+        logger.info("签到任务开始");
         try {
             miHoYoSign = new MiHoYoSign(args[0], "2");
             miHoYoSign.doSign();
@@ -57,7 +57,7 @@ public class SignMain {
             e.printStackTrace();
         }
         genShinSign.sign();
-        logger.info("原神签到任务完成");
+        logger.info("签到任务完成");
         if (length >= 2) {
             messagePush.sendMessage("原神签到日志", LoadLogFileResource.loadDailyFile());
         }

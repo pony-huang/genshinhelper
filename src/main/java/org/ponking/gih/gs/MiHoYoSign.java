@@ -8,12 +8,15 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ponking.gih.gs.pojo.Post;
 import org.ponking.gih.gs.pojo.PostResult;
 import org.ponking.gih.util.HttpUtils;
 
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 /**
