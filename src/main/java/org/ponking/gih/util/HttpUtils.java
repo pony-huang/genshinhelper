@@ -170,31 +170,6 @@ public class HttpUtils {
         return resultJson;
     }
 
-    public static JSONObject doGet(URI uri, Header[] headers) {
-        CloseableHttpResponse response = null;
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        JSONObject resultJson = null;
-        try {
-            HttpGet httpGet = new HttpGet(uri);
-            for (Header header : headers) {
-                httpGet.addHeader(header);
-            }
-            httpGet.setConfig(REQUEST_CONFIG);
-            response = httpClient.execute(httpGet);
-            if (response.getStatusLine().getStatusCode() == 200) {
-                String result = EntityUtils.toString(response.getEntity());
-                resultJson = JSON.parseObject(result);
-            } else {
-                logger.warn(response.getStatusLine().getStatusCode() + "配置已失效，请更新配置信息");
-            }
-            return resultJson;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            closeResource(httpClient, response);
-        }
-        return resultJson;
-    }
 
     private static void closeResource(CloseableHttpClient httpClient, CloseableHttpResponse response) {
         if (null != response) {

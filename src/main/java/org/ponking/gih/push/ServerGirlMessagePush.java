@@ -1,15 +1,10 @@
 package org.ponking.gih.push;
 
 import org.apache.http.Header;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.message.BasicNameValuePair;
 import org.ponking.gih.util.HttpUtils;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author ponking
@@ -27,15 +22,10 @@ public class ServerGirlMessagePush implements MessagePush {
 
     @Override
     public void sendMessage(String text, String desp) {
-        try {
-            List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("text", text));
-            params.add(new BasicNameValuePair("desp", desp));
-            URI uri = new URIBuilder(getServerGirl()).setParameters(params).build();
-            HttpUtils.doGet(uri, new Header[0]);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("text", text);
+        data.put("desp", desp);
+        HttpUtils.doGet(getServerGirl(), new Header[0], data);
     }
 
     public String getServerGirl() {
