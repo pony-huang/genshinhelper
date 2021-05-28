@@ -1,4 +1,4 @@
-package org.ponking.gih.server.config;
+package org.ponking.gih.server.weixincp.config;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.http.HttpEntity;
@@ -7,10 +7,10 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.ponking.gih.server.param.AppPushTextCardParam;
-import org.ponking.gih.server.param.AppPushTextParam;
-import org.ponking.gih.server.result.AccessTokenResult;
-import org.ponking.gih.server.result.Result;
+import org.ponking.gih.server.weixincp.param.AppPushTextCardParam;
+import org.ponking.gih.server.weixincp.param.AppPushTextParam;
+import org.ponking.gih.server.weixincp.result.AccessTokenResult;
+import org.ponking.gih.server.weixincp.result.Result;
 import org.ponking.gih.util.HttpUtils;
 
 import java.io.IOException;

@@ -1,6 +1,6 @@
-package org.ponking.gih.server.config;
+package org.ponking.gih.server.weixincp.config;
 
-import org.ponking.gih.server.result.Result;
+import org.ponking.gih.server.weixincp.result.Result;
 
 /**
  * @Author ponking

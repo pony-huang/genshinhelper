@@ -1,6 +1,6 @@
-package org.ponking.gih.server.param;
+package org.ponking.gih.server.weixincp.param;
 
-import org.ponking.gih.server.config.CardMessage;
+import org.ponking.gih.server.weixincp.config.CardMessage;
 
 /**
  * @Author ponking

@@ -1,8 +1,8 @@
 package org.ponking.gih.push;
 
 
-import org.ponking.gih.server.config.PushMessageServiceImpl;
-import org.ponking.gih.server.config.WeixinCpConfig;
+import org.ponking.gih.server.weixincp.config.PushMessageServiceImpl;
+import org.ponking.gih.server.weixincp.config.WeixinCpConfig;
 
 /**
  * @Author ponking

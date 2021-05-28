@@ -1,4 +1,4 @@
-package org.ponking.gih.server.param;
+package org.ponking.gih.server.weixincp.param;
 
 /**
  * @Author ponking

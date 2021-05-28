@@ -1,4 +1,4 @@
-package org.ponking.gih.server.result;
+package org.ponking.gih.server.weixincp.result;
 
 /**
  * @Author ponking

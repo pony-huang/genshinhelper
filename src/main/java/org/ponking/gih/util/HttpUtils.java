@@ -4,19 +4,27 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author ponking
@@ -72,12 +80,12 @@ public class HttpUtils {
         return null;
     }
 
-
-    public static JSONObject doPost(String url, Header[] headers, StringEntity entity) {
+    public static JSONObject doPost(String url, Header[] headers, Map<String, Object> data) {
         CloseableHttpResponse response = null;
         CloseableHttpClient httpClient = HttpClients.createDefault();
         JSONObject resultJson = null;
         try {
+            StringEntity entity = new StringEntity(JSON.toJSONString(data), StandardCharsets.UTF_8);
             HttpPost httpPost = new HttpPost(url);
             httpPost.setEntity(entity);
             for (Header header : headers) {
@@ -89,7 +97,7 @@ public class HttpUtils {
                 String result = EntityUtils.toString(response.getEntity());
                 resultJson = JSON.parseObject(result);
             } else {
-                logger.warn(response.getStatusLine().getStatusCode() + " Config配置需要更新");
+                logger.warn(response.getStatusLine().getStatusCode() + "配置已失效，请更新配置信息");
             }
             return resultJson;
         } catch (IOException e) {
@@ -120,10 +128,41 @@ public class HttpUtils {
                 String result = EntityUtils.toString(response.getEntity());
                 resultJson = JSON.parseObject(result);
             } else {
-                logger.warn(response.getStatusLine().getStatusCode() + " Config配置需要更新");
+                logger.warn(response.getStatusLine().getStatusCode() + "配置已失效，请更新配置信息");
             }
             return resultJson;
         } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            closeResource(httpClient, response);
+        }
+        return resultJson;
+    }
+
+    public static JSONObject doGet(String url, Header[] headers, Map<String, Object> data) {
+        CloseableHttpResponse response = null;
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        JSONObject resultJson = null;
+        try {
+            List<NameValuePair> params = new ArrayList<>();
+            for (String key : data.keySet()) {
+                params.add(new BasicNameValuePair(key, data.get(key) + ""));
+            }
+            URI uri = new URIBuilder(url).setParameters(params).build();
+            HttpGet httpGet = new HttpGet(uri);
+            for (Header header : headers) {
+                httpGet.addHeader(header);
+            }
+            httpGet.setConfig(REQUEST_CONFIG);
+            response = httpClient.execute(httpGet);
+            if (response.getStatusLine().getStatusCode() == 200) {
+                String result = EntityUtils.toString(response.getEntity());
+                resultJson = JSON.parseObject(result);
+            } else {
+                logger.warn(response.getStatusLine().getStatusCode() + "配置已失效，请更新配置信息");
+            }
+            return resultJson;
+        } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         } finally {
             closeResource(httpClient, response);
@@ -146,7 +185,7 @@ public class HttpUtils {
                 String result = EntityUtils.toString(response.getEntity());
                 resultJson = JSON.parseObject(result);
             } else {
-                logger.warn(response.getStatusLine().getStatusCode() + " Config配置需要更新");
+                logger.warn(response.getStatusLine().getStatusCode() + "配置已失效，请更新配置信息");
             }
             return resultJson;
         } catch (IOException e) {
