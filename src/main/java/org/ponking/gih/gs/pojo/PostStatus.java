@@ -9,7 +9,7 @@ package org.ponking.gih.gs.pojo;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Post_status {
+public class PostStatus {
 
     private boolean is_official;
     private boolean is_good;

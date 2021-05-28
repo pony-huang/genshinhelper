@@ -11,7 +11,7 @@ import java.util.List;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Help_sys {
+public class HelpSys {
 
     private int answer_num;
     private List<String> top_n;

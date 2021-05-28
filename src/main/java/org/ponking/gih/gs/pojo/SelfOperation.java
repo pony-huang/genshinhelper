@@ -9,7 +9,7 @@ package org.ponking.gih.gs.pojo;
  * @author bejson.com (i@bejson.com)
  * @website http://www.bejson.com/java2pojo/
  */
-public class Self_operation {
+public class SelfOperation {
 
     private boolean is_collected;
     private int attitude;

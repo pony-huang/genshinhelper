@@ -20,7 +20,7 @@ public class User {
     private String avatar;
     private String pendant;
     private boolean is_following;
-    private Level_exp level_exp;
+    private LevelExp level_exp;
     private Certification certification;
 
     public void setUid(String uid) {
@@ -95,11 +95,11 @@ public class User {
         return is_following;
     }
 
-    public void setLevel_exp(Level_exp level_exp) {
+    public void setLevel_exp(LevelExp level_exp) {
         this.level_exp = level_exp;
     }
 
-    public Level_exp getLevel_exp() {
+    public LevelExp getLevel_exp() {
         return level_exp;
     }
 

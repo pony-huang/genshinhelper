@@ -19,13 +19,13 @@ public class PostResult {
     private int last_modify_time;
     private boolean is_user_master;
     private String recommend_type;
-    private Self_operation self_operation;
+    private SelfOperation self_operation;
     private Forum forum;
     private boolean is_official_master;
     private Post post;
     private boolean is_block_on;
     private User user;
-    private Help_sys help_sys;
+    private HelpSys help_sys;
     private int vote_count;
     private List<String> image_list;
     private boolean hot_reply_exist;
@@ -78,11 +78,11 @@ public class PostResult {
         return recommend_type;
     }
 
-    public void setSelf_operation(Self_operation self_operation) {
+    public void setSelf_operation(SelfOperation self_operation) {
         this.self_operation = self_operation;
     }
 
-    public Self_operation getSelf_operation() {
+    public SelfOperation getSelf_operation() {
         return self_operation;
     }
 
@@ -126,11 +126,11 @@ public class PostResult {
         return user;
     }
 
-    public void setHelp_sys(Help_sys help_sys) {
+    public void setHelp_sys(HelpSys help_sys) {
         this.help_sys = help_sys;
     }
 
-    public Help_sys getHelp_sys() {
+    public HelpSys getHelp_sys() {
         return help_sys;
     }
 

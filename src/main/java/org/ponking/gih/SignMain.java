@@ -9,7 +9,6 @@ import org.ponking.gih.push.WeixinCPMessagePush;
 import org.ponking.gih.server.weixincp.config.WeixinCpConfig;
 import org.ponking.gih.util.LoadLogFileResource;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 /**
@@ -28,10 +27,9 @@ public class SignMain {
      * 2. args[0]:cookie args[1]:corpid args[2]:corpsecret  args[3]:agentid
      *
      * @param args
-     * @throws IOException
      * @throws URISyntaxException
      */
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) throws URISyntaxException {
         GenShinSign genShinSign;
         MessagePush messagePush = null;
         int length = args.length;

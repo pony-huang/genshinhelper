@@ -31,7 +31,7 @@ public class Post {
     private int is_deleted;
     private String post_id;
     private boolean is_profit;
-    private Post_status post_status;
+    private PostStatus post_status;
     private int republish_authorization;
     private int max_floor;
     private List<String> structured_content_rows;
@@ -175,11 +175,11 @@ public class Post {
         return is_profit;
     }
 
-    public void setPost_status(Post_status post_status) {
+    public void setPost_status(PostStatus post_status) {
         this.post_status = post_status;
     }
 
-    public Post_status getPost_status() {
+    public PostStatus getPost_status() {
         return post_status;
     }
 
