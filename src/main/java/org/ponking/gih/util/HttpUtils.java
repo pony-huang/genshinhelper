@@ -47,6 +47,25 @@ public class HttpUtils {
             .setRedirectsEnabled(true)
             .build();
 
+
+    public static HttpEntity doPost(String url) {
+        CloseableHttpResponse response = null;
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        try {
+            HttpPost httpPost = new HttpPost(url);
+            httpPost.setHeader("Connection", "keep-alive");
+            httpPost.setHeader("User-Agent", userAgent);
+            httpPost.setConfig(REQUEST_CONFIG);
+            response = httpClient.execute(httpPost);
+            return response.getEntity();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            closeResource(httpClient, response);
+        }
+        return null;
+    }
+
     public static HttpEntity doPost(URI uri, StringEntity entity) {
         CloseableHttpResponse response = null;
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -60,22 +79,8 @@ public class HttpUtils {
             return response.getEntity();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static HttpEntity doGet(URI uri) {
-        CloseableHttpResponse response = null;
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        try {
-            HttpGet httpGet = new HttpGet(uri);
-            httpGet.setHeader("Connection", "keep-alive");
-            httpGet.setHeader("User-Agent", userAgent);
-            httpGet.setConfig(REQUEST_CONFIG);
-            response = httpClient.execute(httpGet);
-            return response.getEntity();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } finally {
+            closeResource(httpClient, response);
         }
         return null;
     }
@@ -88,8 +93,10 @@ public class HttpUtils {
             StringEntity entity = new StringEntity(JSON.toJSONString(data), StandardCharsets.UTF_8);
             HttpPost httpPost = new HttpPost(url);
             httpPost.setEntity(entity);
-            for (Header header : headers) {
-                httpPost.addHeader(header);
+            if (headers != null && headers.length != 0) {
+                for (Header header : headers) {
+                    httpPost.addHeader(header);
+                }
             }
             httpPost.setConfig(REQUEST_CONFIG);
             response = httpClient.execute(httpPost);
@@ -108,50 +115,68 @@ public class HttpUtils {
         return resultJson;
     }
 
-    /**
-     * @param url
-     * @param headers
-     * @return
-     */
-    public static JSONObject doGet(String url, Header[] headers) {
+    public static HttpEntity doGetDefault(URI uri) {
         CloseableHttpResponse response = null;
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        JSONObject resultJson = null;
         try {
-            HttpGet httpGet = new HttpGet(url);
-            for (Header header : headers) {
-                httpGet.addHeader(header);
-            }
+            HttpGet httpGet = new HttpGet(uri);
+            httpGet.setHeader("Connection", "keep-alive");
+            httpGet.setHeader("User-Agent", userAgent);
             httpGet.setConfig(REQUEST_CONFIG);
             response = httpClient.execute(httpGet);
-            if (response.getStatusLine().getStatusCode() == 200) {
-                String result = EntityUtils.toString(response.getEntity());
-                resultJson = JSON.parseObject(result);
-            } else {
-                logger.warn(response.getStatusLine().getStatusCode() + "配置已失效，请更新配置信息");
-            }
-            return resultJson;
+            return response.getEntity();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             closeResource(httpClient, response);
         }
-        return resultJson;
+        return null;
     }
+
+    public static HttpEntity doGetDefault(String url) {
+        CloseableHttpResponse response = null;
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        try {
+            HttpGet httpGet = new HttpGet(url);
+            httpGet.setHeader("Connection", "keep-alive");
+            httpGet.setHeader("User-Agent", userAgent);
+            httpGet.setConfig(REQUEST_CONFIG);
+            response = httpClient.execute(httpGet);
+            return response.getEntity();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            closeResource(httpClient, response);
+        }
+        return null;
+    }
+
+
+    public static JSONObject doGet(String url, Header[] headers) {
+        return doGet(url, headers, null);
+    }
+
 
     public static JSONObject doGet(String url, Header[] headers, Map<String, Object> data) {
         CloseableHttpResponse response = null;
         CloseableHttpClient httpClient = HttpClients.createDefault();
         JSONObject resultJson = null;
         try {
-            List<NameValuePair> params = new ArrayList<>();
-            for (String key : data.keySet()) {
-                params.add(new BasicNameValuePair(key, data.get(key) + ""));
+            URIBuilder uriBuilder = new URIBuilder(url);
+            List<NameValuePair> params = null;
+            if (data != null && !data.isEmpty()) {
+                params = new ArrayList<>();
+                for (String key : data.keySet()) {
+                    params.add(new BasicNameValuePair(key, data.get(key) + ""));
+                }
+                uriBuilder.setParameters(params);
             }
-            URI uri = new URIBuilder(url).setParameters(params).build();
+            URI uri = uriBuilder.build();
             HttpGet httpGet = new HttpGet(uri);
-            for (Header header : headers) {
-                httpGet.addHeader(header);
+            if (headers != null && headers.length != 0) {
+                for (Header header : headers) {
+                    httpGet.addHeader(header);
+                }
             }
             httpGet.setConfig(REQUEST_CONFIG);
             response = httpClient.execute(httpGet);
@@ -172,13 +197,6 @@ public class HttpUtils {
 
 
     private static void closeResource(CloseableHttpClient httpClient, CloseableHttpResponse response) {
-        if (null != response) {
-            try {
-                response.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         if (null != httpClient) {
             try {
                 httpClient.close();

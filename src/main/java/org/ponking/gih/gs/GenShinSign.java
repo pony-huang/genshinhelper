@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class GenShinSign extends AbstractSign {
 
-    private static Logger logger = LogManager.getLogger(GenShinSign.class.getName());
+    private static final Logger logger = LogManager.getLogger(GenShinSign.class.getName());
 
     private String uid;
 
@@ -46,9 +46,9 @@ public class GenShinSign extends AbstractSign {
         data.put("uid", uid);
         JSONObject signResult = HttpUtils.doPost(MiHoYoConfig.SIGN_URL, getHeaders(), data);
         if (signResult.getInteger("retcode") == 0) {
-            logger.info("签到成功：{}", signResult.get("message"));
+            logger.info("原神签到福利成功：{}", signResult.get("message"));
         } else {
-            logger.info("签到失败：{}", signResult.get("message"));
+            logger.info("原神签到福利签到失败：{}", signResult.get("message"));
         }
     }
 

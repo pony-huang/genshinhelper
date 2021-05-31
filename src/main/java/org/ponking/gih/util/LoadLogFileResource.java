@@ -2,6 +2,7 @@ package org.ponking.gih.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @Author ponking
@@ -21,7 +22,7 @@ public class LoadLogFileResource {
             int size = fis.available();
             byte[] cache = new byte[size];
             fis.read(cache);
-            log = new String(cache);
+            log = new String(cache, StandardCharsets.UTF_8);
             return log;
         } catch (IOException e) {
             e.printStackTrace();

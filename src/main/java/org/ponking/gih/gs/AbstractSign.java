@@ -4,7 +4,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
-import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -19,7 +18,7 @@ public abstract class AbstractSign {
         this.cookie = cookie;
     }
 
-    public abstract void doSign() throws URISyntaxException, Exception;
+    public abstract void doSign() throws Exception;
 
     protected Header[] getHeaders() {
         Header[] basicHeaders = getBasicHeaders();
