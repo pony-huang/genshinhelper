@@ -6,7 +6,7 @@
         </Console>
         <RollingFile name="RollingFile" fileName="logs/daily.log" append="false"
                      filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
-            <PatternLayout pattern="%msg%n%n"/>
+            <PatternLayout pattern="%msg%n"/>
             <SizeBasedTriggeringPolicy size="5 MB"/>
         </RollingFile>
     </Appenders>

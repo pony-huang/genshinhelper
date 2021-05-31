@@ -10,7 +10,7 @@ import org.ponking.gih.server.weixincp.config.WeixinCpConfig;
  */
 public class WeixinCPMessagePush implements MessagePush {
 
-    private WeixinCpConfig.WeiXinApp myApp;
+    private final WeixinCpConfig.WeiXinApp myApp;
 
     public WeixinCPMessagePush(WeixinCpConfig.WeiXinApp myApp) {
         this.myApp = myApp;
@@ -20,7 +20,7 @@ public class WeixinCPMessagePush implements MessagePush {
     @Override
     public void sendMessage(String text, String desp) {
         PushMessageServiceImpl service = new PushMessageServiceImpl(myApp);
-        service.sendWithTextCard(text, desp);
+        service.sendWithText(text + "\n" + desp);
     }
 
 }

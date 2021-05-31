@@ -103,7 +103,7 @@ public class PushMessageServiceImpl implements PushMessageService {
             params.add(new BasicNameValuePair("corpsecret", MY_APP.getCorpSecret()));
             URI uri = new URIBuilder(TOKEN_URL)
                     .setParameters(params).build();
-            HttpEntity httpEntity = HttpUtils.doGet(uri);
+            HttpEntity httpEntity = HttpUtils.doGetDefault(uri);
             assert httpEntity != null;
             result = JSON.parseObject(EntityUtils.toString(httpEntity), AccessTokenResult.class);
         } catch (URISyntaxException | IOException e1) {
