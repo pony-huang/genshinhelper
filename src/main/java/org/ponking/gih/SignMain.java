@@ -2,8 +2,16 @@ package org.ponking.gih;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ponking.gih.gs.GenshinHelperProperties;
 import org.ponking.gih.gs.Task;
+import org.ponking.gih.gs.TaskLog;
+import org.ponking.gih.push.MessagePush;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 
 /**
@@ -23,6 +31,27 @@ public class SignMain {
      * @throws URISyntaxException
      */
     public static void main(String[] args) throws Exception {
-        new Task(args).doDailyTask();
+        if (args.length == 1) {
+            String baseDir = "";
+            if ("genshin-helper.yaml".equals(args[0])) {
+                baseDir = System.getProperty("user.dir");
+            }
+            logger.info("配置文件路径：{}", baseDir + File.separator + args[0]);
+            Yaml yaml = new Yaml(new Constructor(GenshinHelperProperties.class));
+            InputStream is = new FileInputStream(baseDir + File.separator + args[0]);
+            GenshinHelperProperties properties = yaml.load(is);
+            TaskLog log = null;
+            for (GenshinHelperProperties.Account account : properties.getAccount()) {
+                Task task = new Task(properties.getMode(), properties.getSckey(), properties.getCorpid(),
+                        properties.getCorpsecret(), properties.getAgentid(), account);
+                task.doDailyTask();
+                if (log == null) {
+                    log = new TaskLog(task.getMessagePush(), task.isPushed());
+                }
+            }
+            log.printLog();
+        } else {
+            new Task(args).doDailyTask();
+        }
     }
 }

@@ -1,0 +1,9 @@
+mode: weixincp # serverChan,weixincp
+sckey:
+corpid:
+corpsecret:
+agentid:
+account:
+  - cookie:
+    stuid:
+    stoken:

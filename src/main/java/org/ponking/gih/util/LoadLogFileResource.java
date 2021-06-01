@@ -1,8 +1,9 @@
 package org.ponking.gih.util;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 /**
  * @Author ponking
@@ -22,7 +23,7 @@ public class LoadLogFileResource {
             int size = fis.available();
             byte[] cache = new byte[size];
             fis.read(cache);
-            log = new String(cache, StandardCharsets.UTF_8);
+            log = new String(cache);
             return log;
         } catch (IOException e) {
             e.printStackTrace();
@@ -36,5 +37,18 @@ public class LoadLogFileResource {
             }
         }
         return log;
+    }
+
+    public static void clearDailyFile() {
+        String path = System.getProperties().get("user.dir") + "/logs/daily.log";
+        File file = new File(path);
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write("");
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
