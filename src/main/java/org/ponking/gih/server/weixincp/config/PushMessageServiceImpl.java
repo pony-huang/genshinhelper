@@ -7,6 +7,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.ponking.gih.server.weixincp.param.AppPushMarkdownParam;
 import org.ponking.gih.server.weixincp.param.AppPushTextCardParam;
 import org.ponking.gih.server.weixincp.param.AppPushTextParam;
 import org.ponking.gih.server.weixincp.result.AccessTokenResult;
@@ -65,6 +66,25 @@ public class PushMessageServiceImpl implements PushMessageService {
                     .setParameters(params).build();
             AppPushTextCardParam param = AppPushTextCardParam.build(MY_APP.getAgentId(), message.getDescription(),
                     message.getTitle(), message.getUrl(), message.getBtntxt() == null ? "更多" : message.getBtntxt());
+            StringEntity entity = new StringEntity(JSON.toJSONString(param), StandardCharsets.UTF_8);
+            HttpEntity httpEntity = HttpUtils.doPost(uri, entity);
+            assert httpEntity != null;
+            String result = EntityUtils.toString(httpEntity);
+            return JSON.parseObject(result, Result.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public Result sendWithMarkdown(String content) {
+        try {
+            List<NameValuePair> params = getBasicParams();
+            params.add(new BasicNameValuePair("markdown", content));
+            URI uri = new URIBuilder(BASE_URL)
+                    .setParameters(params).build();
+            AppPushMarkdownParam param = AppPushMarkdownParam.build(content, MY_APP.getAgentId());
             StringEntity entity = new StringEntity(JSON.toJSONString(param), StandardCharsets.UTF_8);
             HttpEntity httpEntity = HttpUtils.doPost(uri, entity);
             assert httpEntity != null;

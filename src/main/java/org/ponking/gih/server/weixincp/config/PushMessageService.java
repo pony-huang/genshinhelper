@@ -17,13 +17,23 @@ public interface PushMessageService {
 
     /**
      * 卡片消息样式
+     *
      * @param message
      */
     Result sendWithTextCard(CardMessage message);
 
 
     /**
+     * markdown消息
+     *
+     * @param content
+     */
+    Result sendWithMarkdown(String content);
+
+
+    /**
      * 获取access_token
+     *
      * @return
      */
     String getToken();
