@@ -4,8 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ponking.gih.gs.GenshinHelperProperties;
 import org.ponking.gih.gs.Task;
-import org.ponking.gih.gs.TaskLog;
 import org.ponking.gih.push.MessagePush;
+import org.ponking.gih.util.LoadLogFileResource;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -32,7 +32,8 @@ public class SignMain {
      * @throws URISyntaxException
      */
     public static void main(String[] args) throws Exception {
-        TaskLog log = null;
+        MessagePush messagePush = null;
+        boolean pushed = false;
         if (args.length == 1) {
             String baseDir = "";
             if ("genshin-helper.yaml".equals(args[0])) {
@@ -52,17 +53,21 @@ public class SignMain {
                 Task task = new Task(properties.getMode(), properties.getSckey(), properties.getCorpid(),
                         properties.getCorpsecret(), properties.getAgentid(), account);
                 task.doDailyTask();
-                if (log == null) { // 初始化日志任务
-                    log = new TaskLog(task.getMessagePush(), task.isPushed());
+                if (task.getMessagePush() != null && messagePush == null) { // 初始化日志任务
+                    messagePush = task.getMessagePush();
+                    pushed = task.isPushed();
                 }
             }
         } else {
             Task task = new Task(args);
             task.doDailyTask();
-            log = new TaskLog(task.getMessagePush(), task.isPushed());
+            if (task.getMessagePush() != null) {
+                messagePush = task.getMessagePush();
+                pushed = task.isPushed();
+            }
         }
-        if (log != null) {
-            log.printLog();
+        if (pushed) {
+            messagePush.sendMessage("原神签到日志", LoadLogFileResource.loadDailyFile());
         }
     }
 }

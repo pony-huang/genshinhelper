@@ -9,6 +9,7 @@ import org.ponking.gih.util.LoadLogFileResource;
  * @Author ponking
  * @Date 2021/6/1 16:21
  */
+@Deprecated
 public class TaskLog {
 
 
