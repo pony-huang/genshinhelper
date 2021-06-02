@@ -6,7 +6,6 @@ import org.ponking.gih.push.MessagePush;
 import org.ponking.gih.push.ServerChanMessagePush;
 import org.ponking.gih.push.WeixinCPMessagePush;
 import org.ponking.gih.server.weixincp.config.WeixinCpConfig;
-import org.ponking.gih.util.LoadLogFileResource;
 
 /**
  * @Author ponking
@@ -76,15 +75,10 @@ public class Task {
     public void doDailyTask() throws Exception {
         logger.info("签到任务开始");
         miHoYoSign.doSign();
-        logger.info("** 原神福利签到开始 **");
+        logger.info("原神福利签到开始");
         genShinSign.sign();
-        logger.info("** 原神福利签到完成 **");
+        logger.info("原神福利签到完成");
         logger.info("签到任务完成");
-        logger.info("-------分割线-------");
-        if (pushed) {
-            String log = LoadLogFileResource.loadDailyFile();
-            messagePush.sendMessage("原神签到日志", log);
-        }
     }
 
     public MessagePush getMessagePush() {

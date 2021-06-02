@@ -12,7 +12,7 @@ import org.ponking.gih.util.LoadLogFileResource;
 public class TaskLog {
 
 
-    private MessagePush messagePush = null;
+    private MessagePush messagePush;
 
     private boolean pushed;
 
@@ -24,9 +24,11 @@ public class TaskLog {
     public void printLog() {
         if (pushed) {
             String log = LoadLogFileResource.loadDailyFile();
-            String[] ms = log.split("-------分割线-------");
-            for (String m : ms) {
-                messagePush.sendMessage("原神签到日志", m);
+            int start = 0;
+            while (log.length() > start) {
+                String ms = log.substring(start, Math.min(start + 512, log.length()));
+                messagePush.sendMessage(start == 0 ? "原神签到日志" : "", ms);
+                start += 512;
             }
         }
     }

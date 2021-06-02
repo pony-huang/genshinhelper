@@ -12,6 +12,7 @@ public class WeixinCpConfig {
 
     private static WeiXinApp MY_APP = null;
 
+    @Deprecated
     public static WeiXinApp getInstance() {
         if (MY_APP == null) {
             synchronized (WeiXinApp.class) {
