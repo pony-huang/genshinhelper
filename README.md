@@ -60,6 +60,37 @@ java -jar /home/GENSHIN-HELPER.jar "${你的cookie}" "${你的stuid}" "${你的s
 # 注意cookies中含有等特殊字符,需要加上""
 ```
 
+## 使用yaml配置多账户
+
+> 如使用微信推送
+>
+> genshin-helper.yaml：
+
+```yaml
+mode: weixincp # serverChan,weixincp
+sckey:
+corpid: xxxxx
+corpsecret: xxxxx
+agentid: xxxxx
+account:
+  - cookie: cookie1
+    stuid: stuid1
+    stoken: stoken1
+  - cookie: cookie2
+    stuid: stuid2
+    stoken: stoken2
+```
+
+```shell
+#!/bin/bash
+java -jar /home/GENSHIN-HELPER.jar genshin-helper.yaml >> /home/log/genshin-helper.log
+# 注意cookies中含有等特殊字符,需要加上""
+```
+
+# 更新
+
+- 支持多账号签到
+
 # 已知问题
 
 - 部分贴子浏览签到失效
