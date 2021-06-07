@@ -20,8 +20,7 @@
 **获取stoken,stuid （初次运行才需要）**
 登录 https://bbs.mihoyo.com/ys/, 如果已经登录，需要退出再重新登录。
 
-### ~~可使用[org.ponking.gih.util.GetstokenUtils](./genshin-helper/src/main/java/org/ponking/gih/util/GetstokenUtils)
-工具类获取~~
+### ~~可使用org.ponking.gih.util.GetstokenUtilsUtils工具类获取~~
 
 - 使用 org.ponking.gih.util.GetstokenUtils工具类，添加cookie并启动
 
