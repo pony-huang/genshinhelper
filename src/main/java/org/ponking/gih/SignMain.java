@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.ponking.gih.gs.GenshinHelperProperties;
 import org.ponking.gih.gs.Task;
 import org.ponking.gih.push.MessagePush;
+import org.ponking.gih.util.GetstokenUtils;
 import org.ponking.gih.util.LoadLogFileResource;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -34,6 +35,13 @@ public class SignMain {
     public static void main(String[] args) throws Exception {
         MessagePush messagePush = null;
         boolean pushed = false;
+        String isGenUsers = System.getProperty("ponking.gen.users");
+        logger.info("isGenUsers：{}", isGenUsers);
+        if ("true".equals(isGenUsers) && args.length == 1) {
+            GetstokenUtils.gen(args[0]);
+            logger.info("生成用户cookie成功！！！，文件名称：{}", "genshin-users.yaml");
+            return;
+        }
         if (args.length == 1) {
             String baseDir = "";
             if ("genshin-helper.yaml".equals(args[0])) {

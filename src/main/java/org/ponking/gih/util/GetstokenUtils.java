@@ -5,11 +5,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.ponking.gih.gs.MiHoYoConfig;
+import org.yaml.snakeyaml.Yaml;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
 
 /**
  * @Author ponking
@@ -17,26 +16,74 @@ import java.util.UUID;
  */
 public class GetstokenUtils {
 
-    public static String cookie = "";
-
     private GetstokenUtils() {
     }
 
 
     public static void main(String[] args) {
+        doGen("{你的cookie}");
+    }
+
+
+    private static Map<String, Object> doGen(String cookie) {
+        Map<String, Object> user = new HashMap<>();
         JSONObject result = HttpUtils.
-                doGet(String.format(MiHoYoConfig.HUB_COOKIE2_URL, getCookieByName("login_ticket"), getCookieByName("account_id")), getHeaders());
+                doGet(String.format(MiHoYoConfig.HUB_COOKIE2_URL, getCookieByName(cookie, "login_ticket"), getCookieByName(cookie, "account_id")), getHeaders(cookie));
         if (!"OK".equals(result.get("message"))) {
             System.out.println("login_ticket已失效,请重新登录获取");
         } else {
             String stoken = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("token");
-            String stuid = getCookieByName("account_id");
+            String stuid = getCookieByName(cookie, "account_id");
             System.out.println("stoken=" + stoken);
             System.out.println("stuid=" + stuid);
+            user.put("stoken", stoken);
+            user.put("stuid", stuid);
+        }
+        return user;
+    }
+
+
+    public static void gen(String fileName) {
+        String baseDir = "";
+        FileOutputStream fos = null;
+        FileInputStream fis = null;
+        try {
+            if ("genshin-gen.properties".equals(fileName)) {
+                baseDir = System.getProperty("user.dir");
+            }
+            fileName = baseDir + File.separator + fileName;
+            File file = new File(fileName);
+            if (!file.exists()) {
+                throw new FileNotFoundException("配置文件不存在：" + fileName);
+            }
+            fis = new FileInputStream(file);
+            Properties pro = new Properties();
+            pro.load(fis);
+            Map<String, Object> data = new HashMap<>();
+            for (Object key : pro.keySet()) {
+                String cookie = (String) pro.get(key);
+                Map<String, Object> user = doGen(cookie);
+                data.put((String) key, user);
+            }
+            Yaml yaml = new Yaml();
+            StringWriter writer = new StringWriter();
+            yaml.dump(data, writer);
+            File outFile = new File("genshin-users.yaml");
+            if (outFile.exists()) {
+                outFile.delete();
+            }
+            fos = new FileOutputStream(outFile);
+            fos.write(writer.toString().getBytes());
+
+            fis.close();
+            fos.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public static String getCookieByName(String name) {
+    public static String getCookieByName(String cookie, String name) {
         String[] split = cookie.split(";");
         for (String s : split) {
             String h = s.trim();
@@ -48,7 +95,7 @@ public class GetstokenUtils {
     }
 
 
-    public static Header[] getHeaders() {
+    public static Header[] getHeaders(String cookie) {
         BasicHeader h1 = new BasicHeader("Cookie", cookie);
         BasicHeader h2 = new BasicHeader("User-Agent", MiHoYoConfig.USER_AGENT);
         BasicHeader h3 = new BasicHeader("Referer", MiHoYoConfig.REFERER_URL);

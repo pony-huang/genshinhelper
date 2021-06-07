@@ -4,7 +4,7 @@
 
 仓库地址：https://github.com/PonKing66/genshi-helper
 
-**（最新版本（2.0.1）改动较大，建议重新拉取）**
+> （最新版本（2.0.x）改动较大，建议重新拉取）
 
 # 使用说明
 
@@ -15,14 +15,39 @@
 
 ![](./images/img_1.png)
 
-## **添加社区Cookie签到获取米哈币**
+## 添加社区Cookie签到获取米哈币
 
-获取stoken,stuid （初次运行才需要）
+**获取stoken,stuid （初次运行才需要）**
+登录 https://bbs.mihoyo.com/ys/, 如果已经登录，需要退出再重新登录。
 
-可使用[org.ponking.gih.util.GetstokenUtils](./genshin-helper/src/main/java/org/ponking/gih/util/GetstokenUtils)工具类获取
+### ~~可使用[org.ponking.gih.util.GetstokenUtils](./genshin-helper/src/main/java/org/ponking/gih/util/GetstokenUtils)
+工具类获取~~
 
-- 登录 https://bbs.mihoyo.com/ys/, 如果已经登录，需要退出再重新登录。
 - 使用 org.ponking.gih.util.GetstokenUtils工具类，添加cookie并启动
+
+### 使用Java -jar启动参数(-Dponking.gen.users=true)获取stoken,stuid(支持多账户，推荐)
+
+**如,genshin-gen.properties文件：**
+
+```properties
+jerry=cookie1
+tom=cookie2
+spkie=cookie3
+```
+
+运行,可获取genshin-users.yaml：
+
+```shell
+java -jar -Dponking.gen.users=true GENSHIN_HELPER.jar genshin-gen.properties
+```
+
+genshin-users.yaml内容大致如下：
+
+```yaml
+jerry: { stoken: xxxxxxxxxxxxxxxxxxxxxxxxxxx, stuid: 'xxxxxxxxx' }
+tom: { stoken: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx, stuid: 'xxxxxxxxx' }
+spkie: { stoken: xxxxxxxxxxxxxxxxxxxxxxxxxxx, stuid: 'xxxxxxxxx' }
+```
 
 ## 使用Linux Crontab定时任务执行
 
@@ -89,6 +114,7 @@ java -jar /home/GENSHIN-HELPER.jar genshin-helper.yaml >> /home/log/genshin-help
 
 # 更新
 
+- 支持多账号获取cookie(stoken,stuid) 20210607
 - 支持多账号签到
 
 # 已知问题
@@ -97,6 +123,6 @@ java -jar /home/GENSHIN-HELPER.jar genshin-helper.yaml >> /home/log/genshin-help
 
 # 感谢
 
-参考 [genshin-auto-login](https://github.com/Viole403/genshin-auto-login)
+- [genshin-auto-login](https://github.com/Viole403/genshin-auto-login)
 
-感谢 [BILIBILI-HELPER](https://github.com/JunzhouLiu/BILIBILI-HELPER) 作者 JunzhouLiu
+- [BILIBILI-HELPER](https://github.com/JunzhouLiu/BILIBILI-HELPER)
