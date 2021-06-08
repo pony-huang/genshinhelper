@@ -24,7 +24,7 @@ public class WeixinCPMessagePush implements MessagePush {
         int start = 0;
         while (log.length() > start) { // 为企业微信推送消息限制长度512
             String ms = log.substring(start, Math.min(start + 512, log.length()));
-            sendMessage(start == 0 ? "原神签到日志" : "", ms);
+            sendMessage((start == 0 ? "原神签到日志\n" : "") + ms);
             start += 512;
         }
     }
