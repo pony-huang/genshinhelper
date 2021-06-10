@@ -18,7 +18,7 @@ public class DailyTask {
     public MiHoYoSign miHoYoSign;
     public MessagePush messagePush = null;
     public String[] args;
-    public boolean pushed = false; // 是否需要推送日志
+    public boolean pushed = false; // 是否推送日志
 
     public DailyTask(String[] args) {
         this.args = args;
@@ -44,12 +44,12 @@ public class DailyTask {
     }
 
     /**
-     * @param mode
-     * @param sckey
-     * @param corpid
-     * @param corpsecret
-     * @param agentid
-     * @param account
+     * @param mode       推送消息方式
+     * @param sckey      server酱sckey
+     * @param corpid     企业微信corpid
+     * @param corpsecret 企业微信corpsecret
+     * @param agentid    企业微信agentid
+     * @param account    米哈游账号信息
      */
     public DailyTask(String mode, String sckey, String corpid, String corpsecret, String agentid, GenshinHelperProperties.Account account) {
         if (mode == null) {
@@ -75,9 +75,12 @@ public class DailyTask {
     public void doDailyTask() throws Exception {
         logger.info("签到任务开始");
         miHoYoSign.doSign();
+
         logger.info("原神福利签到开始");
         genShinSign.sign();
+
         logger.info("原神福利签到完成");
+
         logger.info("签到任务完成");
     }
 
