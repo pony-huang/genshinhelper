@@ -44,7 +44,7 @@ public class MiHoYoConfig {
 
     public static final String HUB_LIST1_URL = "https://bbs-api.mihoyo.com/post/api/getForumPostList?forum_id=%s&is_good=false&is_hot=false&page_size=20&sort_type=1";
 
-    public static final String HUB_LIST2_URL = "https://bbs-api.mihoyo.com/post/api/feeds/post?fresh_action=1&gids=%s%last_id=";
+    public static final String HUB_LIST2_URL = "https://bbs-api.mihoyo.com/post/api/feeds/post?fresh_action=1&gids=%slast_id=";
 
     public static final String HUB_VIEW_URL = "https://bbs-api.mihoyo.com/post/api/getPostFull?post_id=%s";
 

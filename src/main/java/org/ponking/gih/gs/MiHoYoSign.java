@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.ponking.gih.gs.pojo.PostResult;
 import org.ponking.gih.util.HttpUtils;
 
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -24,98 +25,68 @@ public class MiHoYoSign extends AbstractSign {
 
     private static final Logger logger = LogManager.getLogger(MiHoYoSign.class.getName());
 
-    private final String forumId;
+    private final MiHoYoConfig.Hub hub;
 
     private final String stuid;
 
     private final String stoken;
 
+    private final Random random = new Random();
+
+    private final HashSet<Object> set = new HashSet<>(10); // 保证每个浏览(点赞，分享)的帖子不重复
+
     public List<PostResult> postList = new ArrayList<>();
 
-    public MiHoYoSign(String forumId, String stuid, String stoken) {
-        this(null, forumId, stuid, stoken);
+    public MiHoYoSign(MiHoYoConfig.Hub hub, String stuid, String stoken) {
+        this(null, hub, stuid, stoken);
     }
 
-    public MiHoYoSign(String cookie, String forumId, String stuid, String stoken) {
+    public MiHoYoSign(String cookie, MiHoYoConfig.Hub hub, String stuid, String stoken) {
         super(cookie);
-        this.forumId = forumId;
+        this.hub = hub;
         this.stuid = stuid;
         this.stoken = stoken;
     }
 
     @Override
     public void doSign() throws Exception {
-        Random random = new Random();
-        HashSet<Object> set = new HashSet<>(10); // 保证每个浏览(点赞，分享)的帖子不重复
         sign();
         getPosts();
         logger.info("-->> 看帖中...");
-        IntStream.range(0, 3).forEach(
-                item -> {
-                    int index = 0;
-                    while (set.contains(index)) {
-                        index = random.nextInt(postList.size() - 1);
-                    }
-                    set.add(index);
-                    try {
-                        viewPost(postList.get(index));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        TimeUnit.SECONDS.sleep(random.nextInt(3));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-        );
-        set.clear();
+        doTask(this, this.getClass().getMethod("viewPost", PostResult.class), 5);
         logger.info("-->> 点赞中...");
-        IntStream.range(0, 5).forEach(
-                item -> {
-                    int index = 0;
-                    while (set.contains(index)) {
-                        index = random.nextInt(postList.size() - 1);
-                    }
-                    set.add(index);
-                    try {
-                        upVotePost(postList.get(index));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        TimeUnit.SECONDS.sleep(random.nextInt(3));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-        );
+        doTask(this, this.getClass().getMethod("upVotePost", PostResult.class), 5);
         logger.info("-->> 分享中...");
-        set.clear();
-        IntStream.range(0, 3).forEach(
-                item -> {
-                    int index = 0;
-                    while (set.contains(index)) {
-                        index = random.nextInt(postList.size() - 1);
-                    }
-                    set.add(index);
-                    try {
-                        sharePost(postList.get(index));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        TimeUnit.SECONDS.sleep(random.nextInt(3));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-        );
+        doTask(this, this.getClass().getMethod("sharePost", PostResult.class), 3);
     }
 
 
-    public void sign() throws Exception {
-        JSONObject signResult = HttpUtils.doPost(String.format(MiHoYoConfig.HUB_SIGN_URL, forumId), getHubApiHeaders(), null);
+    public void doTask(Object obj, Method method, int num) {
+        IntStream.range(0, num).forEach(
+                item -> {
+                    int index = 0;
+                    while (set.contains(index)) {
+                        index = random.nextInt(postList.size() - 1);
+                    }
+                    set.add(index);
+                    try {
+                        method.invoke(obj, postList.get(index));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        TimeUnit.SECONDS.sleep(random.nextInt(3));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
+        set.clear();
+    }
+
+
+    public void sign() {
+        JSONObject signResult = HttpUtils.doPost(String.format(MiHoYoConfig.HUB_SIGN_URL, hub.getForumId()), getHubApiHeaders(), null);
         if ("OK".equals(signResult.get("message")) || "重复".equals(signResult.get("message"))) {
             logger.info("社区签到: {}", signResult.get("message"));
         } else {
@@ -131,7 +102,7 @@ public class MiHoYoSign extends AbstractSign {
      * @throws Exception
      */
     public List<PostResult> getPosts() throws Exception {
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_LIST1_URL, forumId), getHubApiHeaders());
+        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_LIST1_URL, hub.getForumId()), getHubApiHeaders());
         if ("OK".equals(result.get("message"))) {
             JSONArray jsonArray = result.getJSONObject("data").getJSONArray("list");
             postList = JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {
@@ -147,10 +118,10 @@ public class MiHoYoSign extends AbstractSign {
      * 获取帖子
      *
      * @return
-     * @throws Exception
      */
-    public List<PostResult> getPosts2() throws Exception {
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_LIST2_URL, forumId), getHubApiHeaders());
+    public List<PostResult> getHomePosts() {
+        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_LIST2_URL, hub.getId()), getHubApiHeaders());
+        System.out.println(result);
         if ("OK".equals(result.get("message"))) {
             JSONArray jsonArray = result.getJSONObject("data").getJSONArray("list");
             postList = JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {
@@ -164,13 +135,12 @@ public class MiHoYoSign extends AbstractSign {
      * 看帖
      *
      * @param post
-     * @throws Exception
      */
-    public void viewPost(PostResult post) throws Exception {
+    public void viewPost(PostResult post) {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, forumId), getHubApiHeaders(), data);
+        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, hub.getForumId()), getHubApiHeaders(), data);
         if ("OK".equals(result.get("message"))) {
             logger.info("看帖成功:{}", post.getPost().getSubject());
         } else {
@@ -182,9 +152,8 @@ public class MiHoYoSign extends AbstractSign {
      * 点赞
      *
      * @param post
-     * @throws Exception
      */
-    public void upVotePost(PostResult post) throws Exception {
+    public void upVotePost(PostResult post) {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
@@ -200,10 +169,9 @@ public class MiHoYoSign extends AbstractSign {
      * 分享
      *
      * @param post
-     * @throws Exception
      */
-    public void sharePost(PostResult post) throws Exception {
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, forumId), getHubApiHeaders());
+    public void sharePost(PostResult post) {
+        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getForumId()), getHubApiHeaders());
         if ("OK".equals(result.get("message"))) {
             logger.info("分享成功:{}", post.getPost().getSubject());
         } else {

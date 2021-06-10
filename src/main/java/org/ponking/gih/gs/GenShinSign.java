@@ -55,10 +55,6 @@ public class GenShinSign extends AbstractSign {
     public void sign() throws URISyntaxException {
         String uid = getUid();
         setUid(uid);
-//        if (isSigned(uid)) {
-//            logger.info("已经签到！无需在签到...");
-//            return;
-//        }
         isSigned();
         doSign();
     }

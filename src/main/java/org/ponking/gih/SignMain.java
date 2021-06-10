@@ -3,7 +3,7 @@ package org.ponking.gih;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ponking.gih.gs.GenshinHelperProperties;
-import org.ponking.gih.gs.Task;
+import org.ponking.gih.gs.DailyTask;
 import org.ponking.gih.push.MessagePush;
 import org.ponking.gih.util.GetstokenUtils;
 import org.ponking.gih.util.LoadLogFileResource;
@@ -58,20 +58,20 @@ public class SignMain {
             GenshinHelperProperties properties = yaml.load(is);
 
             for (GenshinHelperProperties.Account account : properties.getAccount()) {
-                Task task = new Task(properties.getMode(), properties.getSckey(), properties.getCorpid(),
+                DailyTask dailyTask = new DailyTask(properties.getMode(), properties.getSckey(), properties.getCorpid(),
                         properties.getCorpsecret(), properties.getAgentid(), account);
-                task.doDailyTask();
-                if (task.getMessagePush() != null && messagePush == null) { // 初始化日志任务
-                    messagePush = task.getMessagePush();
-                    pushed = task.isPushed();
+                dailyTask.doDailyTask();
+                if (dailyTask.getMessagePush() != null && messagePush == null) { // 初始化日志任务
+                    messagePush = dailyTask.getMessagePush();
+                    pushed = dailyTask.isPushed();
                 }
             }
         } else {
-            Task task = new Task(args);
-            task.doDailyTask();
-            if (task.getMessagePush() != null) {
-                messagePush = task.getMessagePush();
-                pushed = task.isPushed();
+            DailyTask dailyTask = new DailyTask(args);
+            dailyTask.doDailyTask();
+            if (dailyTask.getMessagePush() != null) {
+                messagePush = dailyTask.getMessagePush();
+                pushed = dailyTask.isPushed();
             }
         }
         if (pushed) {
