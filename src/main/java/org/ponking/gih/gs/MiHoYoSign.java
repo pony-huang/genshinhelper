@@ -14,8 +14,7 @@ import org.ponking.gih.util.HttpUtils;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
+import java.util.concurrent.*;
 
 /**
  * @Author ponking
@@ -33,13 +32,29 @@ public class MiHoYoSign extends AbstractSign {
 
     private final Random random = new Random();
 
-    private final HashSet<Object> set = new HashSet<>(10); // 保证每个浏览(点赞，分享)的帖子不重复
+    /**
+     * 浏览帖子数
+     */
+    private final static int VIEW_NUM = 5;
+
+    /**
+     * 点赞帖子数
+     */
+    private final static int UP_VOTE_NUM = 5;
+
+    /**
+     * 分享帖子数
+     */
+    private final static int SHARE_NUM = 3;
 
     public List<PostResult> postList = new ArrayList<>();
 
     public MiHoYoSign(MiHoYoConfig.Hub hub, String stuid, String stoken) {
         this(null, hub, stuid, stoken);
     }
+
+    private final ExecutorService pool = new ThreadPoolExecutor(3, 3, 20,
+            TimeUnit.SECONDS, new LinkedBlockingDeque<>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
 
     public MiHoYoSign(String cookie, MiHoYoConfig.Hub hub, String stuid, String stoken) {
         super(cookie);
@@ -52,36 +67,54 @@ public class MiHoYoSign extends AbstractSign {
     public void doSign() throws Exception {
         sign();
         getPosts();
-        logger.info("-->> 看帖中...");
-        doTask(this, this.getClass().getMethod("viewPost", PostResult.class), 5);
-        logger.info("-->> 点赞中...");
-        doTask(this, this.getClass().getMethod("upVotePost", PostResult.class), 5);
-        logger.info("-->> 分享中...");
-        doTask(this, this.getClass().getMethod("sharePost", PostResult.class), 3);
+        // 创建任务
+        Callable<Integer> viewPost = createTaskRunnable(this, "viewPost", VIEW_NUM);
+        Callable<Integer> upVotePost = createTaskRunnable(this, "upVotePost", UP_VOTE_NUM);
+        Callable<Integer> sharePost = createTaskRunnable(this, "sharePost", SHARE_NUM);
+        //执行任务
+        pool.submit(viewPost);
+        pool.submit(upVotePost);
+        pool.submit(sharePost);
+        //打印日志
+        logger.info("浏览帖子,成功: {},失败：{}", viewPost.call(), VIEW_NUM - viewPost.call());
+        logger.info("点赞帖子,成功: {},失败：{}", upVotePost.call(), UP_VOTE_NUM - upVotePost.call());
+        logger.info("分享帖子,成功: {},失败：{}", sharePost.call(), SHARE_NUM - sharePost.call());
     }
 
+    public Callable<Integer> createTaskRunnable(Object obj, String methodName, int num) {
+        return () -> {
+            try {
+                return doTask(obj, obj.getClass().getDeclaredMethod(methodName, PostResult.class), num);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            return 0;
+        };
+    }
 
-    public void doTask(Object obj, Method method, int num) {
-        IntStream.range(0, num).forEach(
-                item -> {
-                    int index = 0;
-                    while (set.contains(index)) {
-                        index = random.nextInt(postList.size() - 1);
-                    }
-                    set.add(index);
-                    try {
-                        method.invoke(obj, postList.get(index));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        TimeUnit.SECONDS.sleep(random.nextInt(3));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-        );
-        set.clear();
+    public int doTask(Object obj, Method method, int num) {
+        int sc = 0;
+        // 保证每个浏览(点赞，分享)的帖子不重复
+        HashSet<Object> set = new HashSet<>(10);
+        for (int i = 0; i < num; i++) {
+            int index = 0;
+            while (set.contains(index)) {
+                index = random.nextInt(postList.size() - 1);
+            }
+            set.add(index);
+            try {
+                method.invoke(obj, postList.get(index));
+                sc++;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                TimeUnit.SECONDS.sleep(random.nextInt(2));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return sc;
     }
 
 
@@ -98,10 +131,9 @@ public class MiHoYoSign extends AbstractSign {
     /**
      * 获取帖子
      *
-     * @return
      * @throws Exception
      */
-    public List<PostResult> getPosts() throws Exception {
+    public void getPosts() throws Exception {
         JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_LIST1_URL, hub.getForumId()), getHubApiHeaders());
         if ("OK".equals(result.get("message"))) {
             JSONArray jsonArray = result.getJSONObject("data").getJSONArray("list");
@@ -111,7 +143,6 @@ public class MiHoYoSign extends AbstractSign {
             throw new Exception("帖子数为空，请查配置并更新！！！");
         }
         logger.info("获取帖子成功，总共帖子数: {}", postList.size());
-        return postList;
     }
 
     /**
@@ -119,7 +150,7 @@ public class MiHoYoSign extends AbstractSign {
      *
      * @return
      */
-    public List<PostResult> getHomePosts() {
+    public void getHomePosts() {
         JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_LIST2_URL, hub.getId()), getHubApiHeaders());
         System.out.println(result);
         if ("OK".equals(result.get("message"))) {
@@ -128,7 +159,6 @@ public class MiHoYoSign extends AbstractSign {
             });
         }
         logger.info("获取帖子成功，总共帖子数: {}", postList.size());
-        return postList;
     }
 
     /**
@@ -136,15 +166,17 @@ public class MiHoYoSign extends AbstractSign {
      *
      * @param post
      */
-    public void viewPost(PostResult post) {
+    public boolean viewPost(PostResult post) {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
         JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, hub.getForumId()), getHubApiHeaders(), data);
         if ("OK".equals(result.get("message"))) {
-            logger.info("看帖成功:{}", post.getPost().getSubject());
+//            logger.info("看帖成功:{}", post.getPost().getSubject());
+            return true;
         } else {
-            logger.info("看帖失败:{}", result.get("message"));
+//            logger.info("看帖失败:{}", result.get("message"));
+            return false;
         }
     }
 
@@ -153,15 +185,17 @@ public class MiHoYoSign extends AbstractSign {
      *
      * @param post
      */
-    public void upVotePost(PostResult post) {
+    public boolean upVotePost(PostResult post) {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
         JSONObject result = HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getHubApiHeaders(), data);
         if ("OK".equals(result.get("message"))) {
-            logger.info("点赞成功:{}", post.getPost().getSubject());
+//            logger.info("点赞成功:{}", post.getPost().getSubject());
+            return true;
         } else {
-            logger.info("点赞失败:{}", result.get("message"));
+//            logger.info("点赞失败:{}", result.get("message"));
+            return false;
         }
     }
 
@@ -170,12 +204,14 @@ public class MiHoYoSign extends AbstractSign {
      *
      * @param post
      */
-    public void sharePost(PostResult post) {
+    public boolean sharePost(PostResult post) {
         JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getForumId()), getHubApiHeaders());
         if ("OK".equals(result.get("message"))) {
-            logger.info("分享成功:{}", post.getPost().getSubject());
+//            logger.info("分享成功:{}", post.getPost().getSubject());
+            return true;
         } else {
-            logger.info("分享失败:{}", result.get("message"));
+//            logger.info("分享失败:{}", result.get("message"));
+            return false;
         }
     }
 
