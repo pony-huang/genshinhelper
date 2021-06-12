@@ -68,20 +68,20 @@ public class MiHoYoSign extends AbstractSign {
         sign();
         getPosts();
         // 创建任务
-        Callable<Integer> viewPost = createTaskRunnable(this, "viewPost", VIEW_NUM);
-        Callable<Integer> upVotePost = createTaskRunnable(this, "upVotePost", UP_VOTE_NUM);
-        Callable<Integer> sharePost = createTaskRunnable(this, "sharePost", SHARE_NUM);
+        Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM);
+        Callable<Integer> upVotePost = createTask(this, "upVotePost", UP_VOTE_NUM);
+        Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM);
         //执行任务
-        pool.submit(viewPost);
-        pool.submit(upVotePost);
-        pool.submit(sharePost);
+        Future<Integer> vpf = pool.submit(viewPost);
+        Future<Integer> upf = pool.submit(upVotePost);
+        Future<Integer> spf = pool.submit(sharePost);
         //打印日志
-        logger.info("浏览帖子,成功: {},失败：{}", viewPost.call(), VIEW_NUM - viewPost.call());
-        logger.info("点赞帖子,成功: {},失败：{}", upVotePost.call(), UP_VOTE_NUM - upVotePost.call());
-        logger.info("分享帖子,成功: {},失败：{}", sharePost.call(), SHARE_NUM - sharePost.call());
+        logger.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
+        logger.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
+        logger.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
     }
 
-    public Callable<Integer> createTaskRunnable(Object obj, String methodName, int num) {
+    public Callable<Integer> createTask(Object obj, String methodName, int num) {
         return () -> {
             try {
                 return doTask(obj, obj.getClass().getDeclaredMethod(methodName, PostResult.class), num);
