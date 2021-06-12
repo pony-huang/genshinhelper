@@ -79,6 +79,7 @@ public class MiHoYoSign extends AbstractSign {
         logger.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
         logger.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
         logger.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
+        pool.shutdown();
     }
 
     public Callable<Integer> createTask(Object obj, String methodName, int num) {
