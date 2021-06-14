@@ -14,6 +14,9 @@ public class MiHoYoConfig {
 
     public static final String APP_VERSION = "2.3.0"; // 切勿乱修改
 
+    /**
+     * Android 2
+     */
     public static final String CLIENT_TYPE = "5"; // 切勿乱修改
 
     public static final String REGION = "cn_gf01"; // 切勿乱修改
@@ -30,6 +33,8 @@ public class MiHoYoConfig {
 
     public static final String USER_AGENT = String.format("Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/%s", APP_VERSION);
 
+    public static final String USER_AGENT_2 = "okhttp/4.8.0";
+
 
     /**
      * mihoyo hub
@@ -44,11 +49,13 @@ public class MiHoYoConfig {
 
     public static final String HUB_LIST1_URL = "https://bbs-api.mihoyo.com/post/api/getForumPostList?forum_id=%s&is_good=false&is_hot=false&page_size=20&sort_type=1";
 
-    public static final String HUB_LIST2_URL = "https://bbs-api.mihoyo.com/post/api/feeds/post?fresh_action=1&gids=%slast_id=";
+    public static final String HUB_LIST2_URL = "https://bbs-api.mihoyo.com/post/api/feeds/posts?fresh_action=1&gids=%s&last_id=";
 
     public static final String HUB_VIEW_URL = "https://bbs-api.mihoyo.com/post/api/getPostFull?post_id=%s";
 
     public static final String HUB_SHARE_URL = "https://bbs-api.mihoyo.com/apihub/api/getShareConf?entity_id=%s&entity_type=1";
+
+    public static final String HUB_EXTERNAL_LINK_URL = "https://bbs-api.mihoyo.com/post/api/externalLink?post_id=%s";
 
     public static final String HUB_VOTE_URL = "https://bbs-api.mihoyo.com/apihub/sapi/upvotePost";
 

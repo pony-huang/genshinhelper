@@ -47,8 +47,6 @@ public class MiHoYoSign extends AbstractSign {
      */
     private final static int SHARE_NUM = 3;
 
-    public List<PostResult> postList = new ArrayList<>();
-
     public MiHoYoSign(MiHoYoConfig.Hub hub, String stuid, String stoken) {
         this(null, hub, stuid, stoken);
     }
@@ -66,15 +64,12 @@ public class MiHoYoSign extends AbstractSign {
     @Override
     public void doSign() throws Exception {
         sign();
-        getPosts();
-        // 创建任务
-        Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM);
-        Callable<Integer> upVotePost = createTask(this, "upVotePost", UP_VOTE_NUM);
-        Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM);
+        List<PostResult> genShinHomePosts = getGenShinHomePosts();
+        logger.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
         //执行任务
-        Future<Integer> vpf = pool.submit(viewPost);
-        Future<Integer> upf = pool.submit(upVotePost);
-        Future<Integer> spf = pool.submit(sharePost);
+        Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, genShinHomePosts));
+        Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, genShinHomePosts));
+        Future<Integer> upf = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts));
         //打印日志
         logger.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
         logger.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
@@ -82,10 +77,10 @@ public class MiHoYoSign extends AbstractSign {
         pool.shutdown();
     }
 
-    public Callable<Integer> createTask(Object obj, String methodName, int num) {
+    public Callable<Integer> createTask(Object obj, String methodName, int num, List<PostResult> posts) {
         return () -> {
             try {
-                return doTask(obj, obj.getClass().getDeclaredMethod(methodName, PostResult.class), num);
+                return doTask(obj, obj.getClass().getDeclaredMethod(methodName, PostResult.class), num, posts);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -93,18 +88,18 @@ public class MiHoYoSign extends AbstractSign {
         };
     }
 
-    public int doTask(Object obj, Method method, int num) {
+    public int doTask(Object obj, Method method, int num, List<PostResult> posts) {
         int sc = 0;
         // 保证每个浏览(点赞，分享)的帖子不重复
-        HashSet<Object> set = new HashSet<>(10);
+        HashSet<Object> set = new HashSet<>(num);
         for (int i = 0; i < num; i++) {
             int index = 0;
             while (set.contains(index)) {
-                index = random.nextInt(postList.size() - 1);
+                index = random.nextInt(posts.size());
             }
             set.add(index);
             try {
-                method.invoke(obj, postList.get(index));
+                method.invoke(obj, posts.get(index));
                 sc++;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -119,6 +114,9 @@ public class MiHoYoSign extends AbstractSign {
     }
 
 
+    /**
+     * 原神签到
+     */
     public void sign() {
         JSONObject signResult = HttpUtils.doPost(String.format(MiHoYoConfig.HUB_SIGN_URL, hub.getForumId()), getHubApiHeaders(), null);
         if ("OK".equals(signResult.get("message")) || "重复".equals(signResult.get("message"))) {
@@ -130,37 +128,42 @@ public class MiHoYoSign extends AbstractSign {
 
 
     /**
-     * 获取帖子
+     * 原神频道
      *
      * @throws Exception
      */
-    public void getPosts() throws Exception {
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_LIST1_URL, hub.getForumId()), getHubApiHeaders());
-        if ("OK".equals(result.get("message"))) {
-            JSONArray jsonArray = result.getJSONObject("data").getJSONArray("list");
-            postList = JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {
-            });
-        } else {
-            throw new Exception("帖子数为空，请查配置并更新！！！");
-        }
-        logger.info("获取帖子成功，总共帖子数: {}", postList.size());
+    public List<PostResult> getGenShinHomePosts() throws Exception {
+        return getPosts(String.format(MiHoYoConfig.HUB_LIST1_URL, hub.getForumId()));
     }
+
+    /**
+     * 旅行者社区讨论区
+     *
+     * @throws Exception
+     */
+    public List<PostResult> getPosts() throws Exception {
+        return getPosts(String.format(MiHoYoConfig.HUB_LIST2_URL, hub.getId()));
+    }
+
 
     /**
      * 获取帖子
      *
-     * @return
+     * @throws Exception
      */
-    public void getHomePosts() {
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_LIST2_URL, hub.getId()), getHubApiHeaders());
-        System.out.println(result);
+    public List<PostResult> getPosts(String url) throws Exception {
+        JSONObject result = HttpUtils.doGet(url, getHubApiHeaders());
         if ("OK".equals(result.get("message"))) {
             JSONArray jsonArray = result.getJSONObject("data").getJSONArray("list");
-            postList = JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {
+            List<PostResult> posts = JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {
             });
+//            logger.info("获取帖子成功，总共帖子数: {}", posts.size());
+            return posts;
+        } else {
+            throw new Exception("帖子数为空，请查配置并更新！！！");
         }
-        logger.info("获取帖子成功，总共帖子数: {}", postList.size());
     }
+
 
     /**
      * 看帖
