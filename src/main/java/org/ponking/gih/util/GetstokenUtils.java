@@ -21,11 +21,11 @@ public class GetstokenUtils {
 
 
     public static void main(String[] args) {
-        doGen("{你的cookie}");
+        System.out.println(doGen("{你的cookie}"));
     }
 
 
-    private static Map<String, Object> doGen(String cookie) {
+    public static Map<String, Object> doGen(String cookie) {
         Map<String, Object> user = new HashMap<>();
         JSONObject result = HttpUtils.
                 doGet(String.format(MiHoYoConfig.HUB_COOKIE2_URL, getCookieByName(cookie, "login_ticket"), getCookieByName(cookie, "account_id")), getHeaders(cookie));
@@ -34,8 +34,6 @@ public class GetstokenUtils {
         } else {
             String stoken = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("token");
             String stuid = getCookieByName(cookie, "account_id");
-            System.out.println("stoken=" + stoken);
-            System.out.println("stuid=" + stuid);
             user.put("stoken", stoken);
             user.put("stuid", stuid);
         }
@@ -43,6 +41,7 @@ public class GetstokenUtils {
     }
 
 
+    @Deprecated
     public static void gen(String fileName) {
         String baseDir = "";
         FileOutputStream fos = null;

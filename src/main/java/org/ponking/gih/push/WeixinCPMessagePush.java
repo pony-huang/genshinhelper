@@ -3,7 +3,7 @@ package org.ponking.gih.push;
 
 import org.ponking.gih.server.weixincp.config.PushMessageServiceImpl;
 import org.ponking.gih.server.weixincp.config.WeixinCpConfig;
-import org.ponking.gih.util.LoadLogFileResource;
+import org.ponking.gih.util.FileUtils;
 
 /**
  * @Author ponking
@@ -20,9 +20,9 @@ public class WeixinCPMessagePush implements MessagePush {
 
     @Override
     public void sendMessage(String text, String desp) {
-        String log = LoadLogFileResource.loadDailyFile();
+        String log = FileUtils.loadDailyFile();
         int start = 0;
-        while (log.length() > start) { // 为企业微信推送消息限制长度512
+        while (log.length() > start) { // 企业微信推送消息限制长度512
             String ms = log.substring(start, Math.min(start + 512, log.length()));
             sendMessage((start == 0 ? "原神签到日志\n" : "") + ms);
             start += 512;

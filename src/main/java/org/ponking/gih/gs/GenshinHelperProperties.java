@@ -1,12 +1,15 @@
 package org.ponking.gih.gs;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * @Author ponking
  * @Date 2021/6/1 14:31
  */
-public class GenshinHelperProperties {
+public class GenshinHelperProperties implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String mode;
 

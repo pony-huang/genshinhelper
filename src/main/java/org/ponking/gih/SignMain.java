@@ -2,18 +2,12 @@ package org.ponking.gih;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ponking.gih.gs.GenshinHelperProperties;
 import org.ponking.gih.gs.DailyTask;
+import org.ponking.gih.gs.GenshinHelperProperties;
 import org.ponking.gih.push.MessagePush;
-import org.ponking.gih.util.GetstokenUtils;
-import org.ponking.gih.util.LoadLogFileResource;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import org.ponking.gih.util.FileUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 
 /**
@@ -36,27 +30,24 @@ public class SignMain {
         MessagePush messagePush = null;
         boolean pushed = false;
         String isGenUsers = System.getProperty("ponking.gen.users");
-        logger.info("isGenUsers：{}", isGenUsers);
+        GenshinHelperProperties properties = null;
+        logger.info("是否需生成完整配置：{}", isGenUsers != null ? (isGenUsers.equals("true") ? true : false) : false);
         if ("true".equals(isGenUsers) && args.length == 1) {
-            GetstokenUtils.gen(args[0]);
-            logger.info("生成用户cookie成功！！！，文件名称：{}", "genshin-users.yaml");
-            return;
+            // 配置文件不完整，需要生成完整配置文件
+            FileUtils.outPutSettingYaml(args[0]);
+            properties = FileUtils.loadSettingYaml(System.getProperty("user.dir") + File.separator + "genshin-helper-auto.yaml");
+        } else if (args.length == 1) {
+            // 配置文件完整，直接读取
+            properties = FileUtils.loadSettingYaml(args[0]);
+        } else {
+            DailyTask dailyTask = new DailyTask(args);
+            dailyTask.doDailyTask();
+            if (dailyTask.getMessagePush() != null) {
+                messagePush = dailyTask.getMessagePush();
+                pushed = dailyTask.isPushed();
+            }
         }
-        if (args.length == 1) {
-            String baseDir = "";
-            if ("genshin-helper.yaml".equals(args[0])) {
-                baseDir = System.getProperty("user.dir");
-            }
-            String fileName = baseDir + File.separator + args[0];
-            logger.info("配置文件路径：{}", fileName);
-            File file = new File(fileName);
-            if (!file.exists()) {
-                throw new FileNotFoundException("配置文件不存在：" + fileName);
-            }
-            InputStream is = new FileInputStream(file);
-            Yaml yaml = new Yaml(new Constructor(GenshinHelperProperties.class));
-            GenshinHelperProperties properties = yaml.load(is);
-
+        if (properties != null) {
             for (GenshinHelperProperties.Account account : properties.getAccount()) {
                 DailyTask dailyTask = new DailyTask(properties.getMode(), properties.getSckey(), properties.getCorpid(),
                         properties.getCorpsecret(), properties.getAgentid(), account);
@@ -66,16 +57,9 @@ public class SignMain {
                     pushed = dailyTask.isPushed();
                 }
             }
-        } else {
-            DailyTask dailyTask = new DailyTask(args);
-            dailyTask.doDailyTask();
-            if (dailyTask.getMessagePush() != null) {
-                messagePush = dailyTask.getMessagePush();
-                pushed = dailyTask.isPushed();
-            }
         }
         if (pushed) {
-            messagePush.sendMessage("原神签到日志", LoadLogFileResource.loadDailyFile());
+            messagePush.sendMessage("原神签到日志", FileUtils.loadDailyFile());
         }
     }
 }

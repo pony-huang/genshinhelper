@@ -5,9 +5,5 @@ corpsecret: xxxxx
 agentid: xxxxx
 account:
   - cookie: cookie1
-    stuid: stuid1
-    stoken: stoken1
   - cookie: cookie2
-    stuid: stuid2
-    stoken: stoken2
 

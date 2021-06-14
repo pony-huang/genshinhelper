@@ -106,7 +106,7 @@ java -jar /home/GENSHIN-HELPER.jar genshin-helper.yaml >> /home/log/genshin-help
 ```
 # 更新
 
-- 添加线程优化（真实效果没测试）
+- 添加线程优化
 - 支持多账号获取cookie(stoken,stuid) 20210607
 - 支持多账号签到
 
