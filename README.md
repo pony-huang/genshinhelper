@@ -65,7 +65,9 @@ java -jar /home/GENSHIN-HELPER.jar "${你的cookie}" "${你的stuid}" "${你的s
 ```
 
 ### 微信企业个人推送（推荐）
+
 ![](./images/img_2.png)
+
 **新建微信企业教程：**
 
 - 首先需要注册一个企业微信（https://work.weixin.qq.com/）。
