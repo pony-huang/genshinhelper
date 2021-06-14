@@ -65,7 +65,7 @@ java -jar /home/GENSHIN-HELPER.jar "${你的cookie}" "${你的stuid}" "${你的s
 ```
 
 ### 微信企业个人推送（推荐）
-
+![](./images/img_2.png)
 **新建微信企业教程：**
 
 - 首先需要注册一个企业微信（https://work.weixin.qq.com/）。
@@ -84,7 +84,7 @@ java -jar /home/GENSHIN-HELPER.jar "${你的cookie}" "${你的stuid}" "${你的s
 
 ```yaml
 mode: weixincp # 设置企业微信推送（serverChan:server酱,weixincp：企业微信）
-sckey: # 仅需填写mode相关配置即可，如我填写mode为weixincp，sckey不用填写
+sckey: # 仅需填写mode相关配置即可，如填写mode为weixincp，那么sckey不用填写
 corpid: xxxxx
 corpsecret: xxxxx
 agentid: xxxxx
