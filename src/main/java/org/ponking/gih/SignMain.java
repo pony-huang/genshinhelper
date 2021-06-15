@@ -1,5 +1,6 @@
 package org.ponking.gih;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ponking.gih.gs.DailyTask;
@@ -47,6 +48,33 @@ public class SignMain {
                 pushed = dailyTask.isPushed();
             }
         }
+        if (properties != null) {
+            for (GenshinHelperProperties.Account account : properties.getAccount()) {
+                DailyTask dailyTask = new DailyTask(properties.getMode(), properties.getSckey(), properties.getCorpid(),
+                        properties.getCorpsecret(), properties.getAgentid(), account);
+                dailyTask.doDailyTask();
+                if (dailyTask.getMessagePush() != null && messagePush == null) { // 初始化日志任务
+                    messagePush = dailyTask.getMessagePush();
+                    pushed = dailyTask.isPushed();
+                }
+            }
+        }
+        if (pushed) {
+            messagePush.sendMessage("原神签到日志", FileUtils.loadDailyFile());
+        }
+    }
+
+
+    /**
+     * 腾讯云函数
+     *
+     * @param config
+     * @throws Exception
+     */
+    public static void mainHandler(String config) throws Exception {
+        MessagePush messagePush = null;
+        boolean pushed = false;
+        GenshinHelperProperties properties = JSON.parseObject(config, GenshinHelperProperties.class);
         if (properties != null) {
             for (GenshinHelperProperties.Account account : properties.getAccount()) {
                 DailyTask dailyTask = new DailyTask(properties.getMode(), properties.getSckey(), properties.getCorpid(),
