@@ -4,12 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ponking.gih.gs.pojo.Award;
 import org.ponking.gih.util.HttpUtils;
+import org.ponking.gih.util.LoggerUtils;
 
-import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +18,6 @@ import java.util.Map;
  * @Date 2021/5/7 10:10
  */
 public class GenShinSign extends AbstractSign {
-
-    private static final Logger logger = LogManager.getLogger(GenShinSign.class.getName());
 
     private String uid;
 
@@ -46,25 +42,28 @@ public class GenShinSign extends AbstractSign {
         data.put("uid", uid);
         JSONObject signResult = HttpUtils.doPost(MiHoYoConfig.SIGN_URL, getHeaders(), data);
         if (signResult.getInteger("retcode") == 0) {
-            logger.info("原神签到福利成功：{}", signResult.get("message"));
+            LoggerUtils.info("原神签到福利成功：{}", signResult.get("message"));
         } else {
-            logger.info("原神签到福利签到失败：{}", signResult.get("message"));
+            LoggerUtils.info("原神签到福利签到失败：{}", signResult.get("message"));
         }
     }
 
-    public void sign() throws URISyntaxException {
+    public void sign() {
+        LoggerUtils.info("原神福利签到开始");
         String uid = getUid();
         setUid(uid);
         isSigned();
         doSign();
+        LoggerUtils.info("原神福利签到完成");
+
     }
 
     public String getUid() {
         JSONObject result = HttpUtils.doGet(MiHoYoConfig.ROLE_URL, getBasicHeaders());
         String uid = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("game_uid");
         String nickname = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("nickname");
-        logger.info("获取用户UID：{}", uid);
-        logger.info("当前用户名称：{}", nickname);
+        LoggerUtils.info("获取用户UID：{}", uid);
+        LoggerUtils.info("当前用户名称：{}", nickname);
         return uid;
     }
 
@@ -102,9 +101,9 @@ public class GenShinSign extends AbstractSign {
         int day = isSign ? totalSignDay : totalSignDay + 1;
         Award award = getAwardInfo(day);
 
-        logger.info("{}月已签到{}天", time.getMonth().getValue(), totalSignDay);
-        logger.info("今天{}签到可获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
-//        logger.info("是否已签到:" + signInfoResult.getJSONObject("data").getBoolean("is_sign"));
+        LoggerUtils.info("{}月已签到{}天", time.getMonth().getValue(), totalSignDay);
+        LoggerUtils.info("今天{}签到可获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
+//        LoggerUtils.info("是否已签到:" + signInfoResult.getJSONObject("data").getBoolean("is_sign"));
         return isSign;
     }
 

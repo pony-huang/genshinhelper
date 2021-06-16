@@ -1,5 +1,6 @@
 package org.ponking.gih.util;
 
+import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ponking.gih.gs.GenshinHelperProperties;
@@ -22,8 +23,16 @@ public class FileUtils {
     private FileUtils() {
     }
 
+    public static String loadDaily() {
+        if (LoggerUtils.flag) {
+            return LoggerUtils.getLog();
+        }
+        return loadDailyFile();
+    }
+
+
     public static String loadDailyFile() {
-        String path = System.getProperties().get("user.dir") + "/logs/daily.log";
+        String path = System.getProperties().get("user.dir") + File.separator + "logs" + File.separator + "daily.log";
         FileInputStream fis = null;
         String log = "";
         try {
@@ -72,6 +81,7 @@ public class FileUtils {
                 account.setStoken((String) user.get("stoken"));
                 account.setStuid((String) user.get("stuid"));
             }
+
             Yaml outYaml = new Yaml();
             StringWriter writer = new StringWriter();
             String data = outYaml.dumpAs(pro, Tag.MAP, null);
@@ -91,7 +101,7 @@ public class FileUtils {
         }
         File file = new File(fileName);
         if (!file.exists()) {
-            throw new FileNotFoundException("文件不存在：" + fileName);
+            throw new FileNotFoundException("文件已存在：" + fileName);
         }
         InputStream is = new FileInputStream(file);
         Yaml yaml = new Yaml(new Constructor(GenshinHelperProperties.class));
@@ -99,7 +109,7 @@ public class FileUtils {
     }
 
     public static void clearDailyFile() {
-        String path = System.getProperties().get("user.dir") + "/logs/daily.log";
+        String path = System.getProperties().get("user.dir") + File.separator + "logs" + File.separator + "daily.log";
         File file = new File(path);
         try {
             FileWriter fileWriter = new FileWriter(file);

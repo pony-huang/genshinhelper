@@ -7,9 +7,9 @@ import org.ponking.gih.gs.DailyTask;
 import org.ponking.gih.gs.GenshinHelperProperties;
 import org.ponking.gih.push.MessagePush;
 import org.ponking.gih.util.FileUtils;
+import org.ponking.gih.util.LoggerUtils;
 
 import java.io.File;
-import java.net.URISyntaxException;
 
 /**
  * @Author ponking
@@ -20,19 +20,15 @@ public class SignMain {
     private static Logger logger = LogManager.getLogger(SignMain.class.getName());
 
     /**
-     * 1. args[0]:cookie args[1]:stuid args[2]:stoken
-     * 2. args[0]:cookie args[1]:stuid args[2]:stoken args[3]:scKey
-     * 3. cookie stuid stoken corpid corpsecret agentid
-     *
      * @param args
-     * @throws URISyntaxException
+     * @throws Exception
      */
     public static void main(String[] args) throws Exception {
         MessagePush messagePush = null;
         boolean pushed = false;
         String isGenUsers = System.getProperty("ponking.gen.users");
         GenshinHelperProperties properties = null;
-        logger.info("是否需生成完整配置：{}", isGenUsers != null ? (isGenUsers.equals("true") ? true : false) : false);
+        LoggerUtils.info("是否需生成完整配置：{}", isGenUsers != null ? (isGenUsers.equals("true") ? true : false) : false);
         if ("true".equals(isGenUsers) && args.length == 1) {
             // 配置文件不完整，需要生成完整配置文件
             FileUtils.outPutSettingYaml(args[0]);
@@ -60,7 +56,7 @@ public class SignMain {
             }
         }
         if (pushed) {
-            messagePush.sendMessage("原神签到日志", FileUtils.loadDailyFile());
+            messagePush.sendMessage("原神签到日志", FileUtils.loadDaily());
         }
     }
 
@@ -68,12 +64,17 @@ public class SignMain {
     /**
      * 腾讯云函数
      *
-     * @param config
+     * @param keyValueClass
      * @throws Exception
      */
-    public static void mainHandler(String config) throws Exception {
+    public static void mainHandler(KeyValueClass keyValueClass) throws Exception {
         MessagePush messagePush = null;
         boolean pushed = false;
+        String config = System.getProperty("config");
+        if (null == config) {
+            LoggerUtils.info("config配置为空！");
+            return;
+        }
         GenshinHelperProperties properties = JSON.parseObject(config, GenshinHelperProperties.class);
         if (properties != null) {
             for (GenshinHelperProperties.Account account : properties.getAccount()) {
@@ -87,7 +88,7 @@ public class SignMain {
             }
         }
         if (pushed) {
-            messagePush.sendMessage("原神签到日志", FileUtils.loadDailyFile());
+            messagePush.sendMessage("原神签到日志", FileUtils.loadDaily());
         }
     }
 }

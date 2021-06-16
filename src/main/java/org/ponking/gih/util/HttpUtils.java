@@ -38,7 +38,7 @@ public class HttpUtils {
 
     }
 
-    private static String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
             "(KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36 Edg/85.0.564.70";
 
     private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectTimeout(35000)
@@ -54,7 +54,7 @@ public class HttpUtils {
         try {
             HttpPost httpPost = new HttpPost(url);
             httpPost.setHeader("Connection", "keep-alive");
-            httpPost.setHeader("User-Agent", userAgent);
+            httpPost.setHeader("User-Agent", USER_AGENT);
             httpPost.setConfig(REQUEST_CONFIG);
             response = httpClient.execute(httpPost);
             return response.getEntity();
@@ -73,7 +73,7 @@ public class HttpUtils {
             HttpPost httpPost = new HttpPost(uri);
             httpPost.setEntity(entity);
             httpPost.setHeader("Connection", "keep-alive");
-            httpPost.setHeader("User-Agent", userAgent);
+            httpPost.setHeader("User-Agent", USER_AGENT);
             httpPost.setConfig(REQUEST_CONFIG);
             response = httpClient.execute(httpPost);
             return response.getEntity();
@@ -121,7 +121,7 @@ public class HttpUtils {
         try {
             HttpGet httpGet = new HttpGet(uri);
             httpGet.setHeader("Connection", "keep-alive");
-            httpGet.setHeader("User-Agent", userAgent);
+            httpGet.setHeader("User-Agent", USER_AGENT);
             httpGet.setConfig(REQUEST_CONFIG);
             response = httpClient.execute(httpGet);
             return response.getEntity();
@@ -139,7 +139,7 @@ public class HttpUtils {
         try {
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader("Connection", "keep-alive");
-            httpGet.setHeader("User-Agent", userAgent);
+            httpGet.setHeader("User-Agent", USER_AGENT);
             httpGet.setConfig(REQUEST_CONFIG);
             response = httpClient.execute(httpGet);
             return response.getEntity();

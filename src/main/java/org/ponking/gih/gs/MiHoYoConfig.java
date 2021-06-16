@@ -19,6 +19,10 @@ public class MiHoYoConfig {
      */
     public static final String CLIENT_TYPE = "5"; // 切勿乱修改
 
+    public static final String DEVICE_NAME = "Xiaomi Redmi Note 4";
+
+    public static final String DEVICE_MODE = "Redmi Note 4";
+
     public static final String REGION = "cn_gf01"; // 切勿乱修改
 
     public static final String REFERER_URL = String.format("https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html?bbs_auth_required=%s&act_id=%s&utm_source=%s&utm_medium=%s&utm_campaign=%s", true, ACT_ID, "bbs", "mys", "icon");
@@ -33,7 +37,7 @@ public class MiHoYoConfig {
 
     public static final String USER_AGENT = String.format("Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/%s", APP_VERSION);
 
-    public static final String USER_AGENT_2 = "okhttp/4.8.0";
+//    public static final String USER_AGENT = "okhttp/4.8.0";
 
 
     /**

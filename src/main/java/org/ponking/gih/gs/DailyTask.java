@@ -1,7 +1,5 @@
 package org.ponking.gih.gs;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ponking.gih.push.MessagePush;
 import org.ponking.gih.push.ServerChanMessagePush;
 import org.ponking.gih.push.WeixinCPMessagePush;
@@ -13,13 +11,17 @@ import org.ponking.gih.server.weixincp.config.WeixinCpConfig;
  */
 public class DailyTask {
 
-    private static final Logger logger = LogManager.getLogger(DailyTask.class.getName());
     public GenShinSign genShinSign;
+
     public MiHoYoSign miHoYoSign;
+
     public MessagePush messagePush = null;
+
     public String[] args;
+
     public boolean pushed = false; // 是否推送日志
 
+    @Deprecated
     public DailyTask(String[] args) {
         this.args = args;
         int length = args.length;
@@ -54,15 +56,21 @@ public class DailyTask {
     public DailyTask(String mode, String sckey, String corpid, String corpsecret, String agentid, GenshinHelperProperties.Account account) {
         if (mode == null) {
             genShinSign = new GenShinSign(account.getCookie());
-            miHoYoSign = new MiHoYoSign(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            if (account.getStuid() != null && account.getStoken() != null) {
+                miHoYoSign = new MiHoYoSign(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            }
         } else if ("serverChan".equals(mode)) {
             genShinSign = new GenShinSign(account.getCookie());
-            miHoYoSign = new MiHoYoSign(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            if (account.getStuid() != null && account.getStoken() != null) {
+                miHoYoSign = new MiHoYoSign(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            }
             messagePush = new ServerChanMessagePush(sckey);
             pushed = true;
         } else if ("weixincp".equals(mode)) {
             genShinSign = new GenShinSign(account.getCookie());
-            miHoYoSign = new MiHoYoSign(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            if (account.getStuid() != null && account.getStoken() != null) {
+                miHoYoSign = new MiHoYoSign(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            }
             WeixinCpConfig.WeiXinApp wconfig = new WeixinCpConfig.WeiXinApp(corpid, corpsecret, agentid);
             messagePush = new WeixinCPMessagePush(wconfig);
             pushed = true;
@@ -73,15 +81,12 @@ public class DailyTask {
 
 
     public void doDailyTask() throws Exception {
-        logger.info("签到任务开始");
-        miHoYoSign.doSign();
-
-        logger.info("原神福利签到开始");
-        genShinSign.sign();
-
-        logger.info("原神福利签到完成");
-
-        logger.info("签到任务完成");
+        if (miHoYoSign != null) {
+            miHoYoSign.doSign();
+        }
+        if (genShinSign != null) {
+            genShinSign.sign();
+        }
     }
 
     public MessagePush getMessagePush() {
