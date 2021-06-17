@@ -44,20 +44,7 @@ public class SignMain {
                 pushed = dailyTask.isPushed();
             }
         }
-        if (properties != null) {
-            for (GenshinHelperProperties.Account account : properties.getAccount()) {
-                DailyTask dailyTask = new DailyTask(properties.getMode(), properties.getSckey(), properties.getCorpid(),
-                        properties.getCorpsecret(), properties.getAgentid(), account);
-                dailyTask.doDailyTask();
-                if (dailyTask.getMessagePush() != null && messagePush == null) { // 初始化日志任务
-                    messagePush = dailyTask.getMessagePush();
-                    pushed = dailyTask.isPushed();
-                }
-            }
-        }
-        if (pushed) {
-            messagePush.sendMessage("原神签到日志", FileUtils.loadDaily());
-        }
+        createUserTaskAndDo(messagePush, pushed, properties);
     }
 
 
@@ -76,6 +63,10 @@ public class SignMain {
             return;
         }
         GenshinHelperProperties properties = JSON.parseObject(config, GenshinHelperProperties.class);
+        createUserTaskAndDo(messagePush, pushed, properties);
+    }
+
+    private static void createUserTaskAndDo(MessagePush messagePush, boolean pushed, GenshinHelperProperties properties) throws Exception {
         if (properties != null) {
             for (GenshinHelperProperties.Account account : properties.getAccount()) {
                 DailyTask dailyTask = new DailyTask(properties.getMode(), properties.getSckey(), properties.getCorpid(),
