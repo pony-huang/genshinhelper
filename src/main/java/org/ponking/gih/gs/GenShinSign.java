@@ -55,7 +55,6 @@ public class GenShinSign extends AbstractSign {
         isSigned();
         doSign();
         LoggerUtils.info("原神福利签到完成");
-
     }
 
     public String getUid() {
@@ -103,7 +102,6 @@ public class GenShinSign extends AbstractSign {
 
         LoggerUtils.info("{}月已签到{}天", time.getMonth().getValue(), totalSignDay);
         LoggerUtils.info("今天{}签到可获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
-//        LoggerUtils.info("是否已签到:" + signInfoResult.getJSONObject("data").getBoolean("is_sign"));
         return isSign;
     }
 

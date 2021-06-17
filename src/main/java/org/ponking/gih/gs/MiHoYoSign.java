@@ -6,8 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ponking.gih.gs.pojo.PostResult;
 import org.ponking.gih.util.HttpUtils;
 import org.ponking.gih.util.LoggerUtils;
@@ -65,10 +63,12 @@ public class MiHoYoSign extends AbstractSign {
         LoggerUtils.info("社区签到任务开始");
         sign();
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
+        List<PostResult> homePosts = getPosts();
         LoggerUtils.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
         //执行任务
         Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, genShinHomePosts));
         Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, genShinHomePosts));
+        Future<Integer> upf0 = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, homePosts));
         Future<Integer> upf = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts));
         //打印日志
         LoggerUtils.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
@@ -175,7 +175,7 @@ public class MiHoYoSign extends AbstractSign {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, hub.getForumId()), getHubApiHeaders(), data);
+        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, hub.getForumId()), getDoTaskHubApiHeaders(), data);
         if ("OK".equals(result.get("message"))) {
 //            LoggerUtils.info("看帖成功:{}", post.getPost().getSubject());
             return true;
@@ -194,7 +194,7 @@ public class MiHoYoSign extends AbstractSign {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
-        JSONObject result = HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getHubApiHeaders(), data);
+        JSONObject result = HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getDoTaskHubApiHeaders(), data);
         if ("OK".equals(result.get("message"))) {
 //            LoggerUtils.info("点赞成功:{}", post.getPost().getSubject());
             return true;
@@ -210,7 +210,7 @@ public class MiHoYoSign extends AbstractSign {
      * @param post
      */
     public boolean sharePost(PostResult post) {
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getForumId()), getHubApiHeaders());
+        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getForumId()), getDoTaskHubApiHeaders());
         if ("OK".equals(result.get("message"))) {
 //            LoggerUtils.info("分享成功:{}", post.getPost().getSubject());
             return true;
@@ -267,6 +267,29 @@ public class MiHoYoSign extends AbstractSign {
         System.arraycopy(sH, 0, newHeaders, 0, sH.length);
         newHeaders[newHeaders.length - 1] = h1;
         return newHeaders;
+    }
+
+
+    public Header[] getDoTaskHubApiHeaders() {
+        BasicHeader[] headers = new BasicHeader[20];
+        headers[0] = new BasicHeader("x-rpc-client_type", "2");
+        headers[1] = new BasicHeader("x-rpc-app_version", "2.8.0");
+        headers[2] = new BasicHeader("x-rpc-sys_version", "10");
+        headers[3] = new BasicHeader("x-rpc-channel", "miyousheluodi");
+        headers[4] = new BasicHeader("x-rpc-device_id", UUID.randomUUID().toString().toLowerCase());
+        headers[5] = new BasicHeader("x-rpc-device_name", "Xiaomi Redmi Note 4");
+        headers[6] = new BasicHeader("Referer", "https://app.mihoyo.com");
+        headers[7] = new BasicHeader("Content-Type", "application/json");
+        headers[8] = new BasicHeader("Host", "bbs-api.mihoyo.com");
+//        headers[9] = new BasicHeader("Content-Length", "41");
+        headers[10] = new BasicHeader("Connection", "Keep-Alive");
+        headers[11] = new BasicHeader("Accept-Encoding", "gzip");
+        headers[12] = new BasicHeader("User-Agent", "okhttp/4.8.0");
+        headers[13] = new BasicHeader("x-rpc-device_model", "Redmi Note 4");
+        headers[13] = new BasicHeader("isLogin", "true");
+        headers[14] = new BasicHeader("DS", getDS());
+        headers[15] = new BasicHeader("cookie", "stuid=" + stuid + ";stoken=" + stoken + ";");
+        return headers;
     }
 
 }
