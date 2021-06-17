@@ -81,7 +81,8 @@ public class SignMain {
                 DailyTask dailyTask = new DailyTask(properties.getMode(), properties.getSckey(), properties.getCorpid(),
                         properties.getCorpsecret(), properties.getAgentid(), account);
                 dailyTask.doDailyTask();
-                if (dailyTask.getMessagePush() != null && messagePush == null) { // 初始化日志任务
+                // 初始化日志任务
+                if (dailyTask.getMessagePush() != null && messagePush == null) {
                     messagePush = dailyTask.getMessagePush();
                     pushed = dailyTask.isPushed();
                 }

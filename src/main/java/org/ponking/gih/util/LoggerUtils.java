@@ -16,8 +16,8 @@ public class LoggerUtils {
     private static StringBuffer log;
 
     static {
-        if (System.getProperty("genshinlog") != null) {
-            flag = Boolean.parseBoolean(System.getProperty("genshinlog"));
+        if (System.getProperty("gslog") != null) {
+            flag = Boolean.parseBoolean(System.getProperty("gslog"));
             log = new StringBuffer();
         }
     }

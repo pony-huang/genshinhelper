@@ -24,7 +24,7 @@ public class FileUtils {
     }
 
     public static String loadDaily() {
-        if (LoggerUtils.flag) {
+        if (!LoggerUtils.flag) {
             return LoggerUtils.getLog();
         }
         return loadDailyFile();
