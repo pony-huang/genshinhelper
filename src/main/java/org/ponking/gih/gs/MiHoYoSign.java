@@ -194,7 +194,7 @@ public class MiHoYoSign extends AbstractSign {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
-        JSONObject result = HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getDoTaskHubApiHeaders(), data);
+        JSONObject result = HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getHubApiHeaders(), data);
         if ("OK".equals(result.get("message"))) {
 //            LoggerUtils.info("点赞成功:{}", post.getPost().getSubject());
             return true;
