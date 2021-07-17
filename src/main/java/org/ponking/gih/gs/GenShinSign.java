@@ -4,14 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.ponking.gih.gs.pojo.Award;
 import org.ponking.gih.util.HttpUtils;
 import org.ponking.gih.util.LoggerUtils;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author ponking
@@ -23,6 +23,9 @@ public class GenShinSign extends AbstractSign {
 
     public GenShinSign(String cookie) {
         super(cookie);
+        setClientType("5");
+        setAppVersion("2.3.0");
+        setSalt("h8w582wxwgqvahcdkpvdhbh2w9casgfl");
     }
 
     @Override
@@ -108,4 +111,5 @@ public class GenShinSign extends AbstractSign {
     public void setUid(String uid) {
         this.uid = uid;
     }
+
 }

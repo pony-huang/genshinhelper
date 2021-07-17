@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Stream;
 
 /**
  * @Author ponking
@@ -56,6 +57,9 @@ public class MiHoYoSign extends AbstractSign {
         this.hub = hub;
         this.stuid = stuid;
         this.stoken = stoken;
+        setClientType("2");
+        setAppVersion("2.8.0");
+        setSalt("dmq2p7ka6nsu0d3ev6nex4k1ndzrnfiy");
     }
 
     @Override
@@ -64,6 +68,7 @@ public class MiHoYoSign extends AbstractSign {
         sign();
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
+        genShinHomePosts.addAll(homePosts);
         LoggerUtils.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
         //执行任务
         Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, genShinHomePosts));
@@ -158,7 +163,6 @@ public class MiHoYoSign extends AbstractSign {
             JSONArray jsonArray = result.getJSONObject("data").getJSONArray("list");
             List<PostResult> posts = JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {
             });
-//            LoggerUtils.info("获取帖子成功，总共帖子数: {}", posts.size());
             return posts;
         } else {
             throw new Exception("帖子数为空，请查配置并更新！！！");
@@ -177,10 +181,8 @@ public class MiHoYoSign extends AbstractSign {
         data.put("is_cancel", false);
         JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, hub.getForumId()), getDoTaskHubApiHeaders(), data);
         if ("OK".equals(result.get("message"))) {
-//            LoggerUtils.info("看帖成功:{}", post.getPost().getSubject());
             return true;
         } else {
-//            LoggerUtils.info("看帖失败:{}", result.get("message"));
             return false;
         }
     }
@@ -196,10 +198,8 @@ public class MiHoYoSign extends AbstractSign {
         data.put("is_cancel", false);
         JSONObject result = HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getHubApiHeaders(), data);
         if ("OK".equals(result.get("message"))) {
-//            LoggerUtils.info("点赞成功:{}", post.getPost().getSubject());
             return true;
         } else {
-//            LoggerUtils.info("点赞失败:{}", result.get("message"));
             return false;
         }
     }
@@ -212,10 +212,8 @@ public class MiHoYoSign extends AbstractSign {
     public boolean sharePost(PostResult post) {
         JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getForumId()), getDoTaskHubApiHeaders());
         if ("OK".equals(result.get("message"))) {
-//            LoggerUtils.info("分享成功:{}", post.getPost().getSubject());
             return true;
         } else {
-//            LoggerUtils.info("分享失败:{}", result.get("message"));
             return false;
         }
     }
@@ -247,49 +245,34 @@ public class MiHoYoSign extends AbstractSign {
         return null;
     }
 
-
-    @Deprecated
-    public Header[] getMiHoYoHeaders() throws Exception {
-        Header[] sH = getHeaders();
-        BasicHeader[] newHeaders = new BasicHeader[sH.length + 1];
-        String stuid = getCookieByName("account_id");
-        String stoken = getCookieToken();
-        BasicHeader h1 = new BasicHeader("cookie", "stuid=" + stuid + ";stoken=" + stoken + ";");
-        System.arraycopy(sH, 0, newHeaders, 0, sH.length);
-        newHeaders[newHeaders.length - 1] = h1;
-        return newHeaders;
-    }
-
     public Header[] getHubApiHeaders() {
-        Header[] sH = getHeaders();
-        BasicHeader[] newHeaders = new BasicHeader[sH.length + 1];
+        Header[] t = getHeaders();
+        BasicHeader[] h = new BasicHeader[t.length + 1];
         BasicHeader h1 = new BasicHeader("cookie", "stuid=" + stuid + ";stoken=" + stoken + ";");
-        System.arraycopy(sH, 0, newHeaders, 0, sH.length);
-        newHeaders[newHeaders.length - 1] = h1;
-        return newHeaders;
+        System.arraycopy(t, 0, h, 0, t.length);
+        h[h.length - 1] = h1;
+        return h;
     }
 
 
     public Header[] getDoTaskHubApiHeaders() {
-        BasicHeader[] headers = new BasicHeader[20];
-        headers[0] = new BasicHeader("x-rpc-client_type", "2");
-        headers[1] = new BasicHeader("x-rpc-app_version", "2.8.0");
-        headers[2] = new BasicHeader("x-rpc-sys_version", "10");
-        headers[3] = new BasicHeader("x-rpc-channel", "miyousheluodi");
-        headers[4] = new BasicHeader("x-rpc-device_id", UUID.randomUUID().toString().toLowerCase());
-        headers[5] = new BasicHeader("x-rpc-device_name", "Xiaomi Redmi Note 4");
-        headers[6] = new BasicHeader("Referer", "https://app.mihoyo.com");
-        headers[7] = new BasicHeader("Content-Type", "application/json");
-        headers[8] = new BasicHeader("Host", "bbs-api.mihoyo.com");
-//        headers[9] = new BasicHeader("Content-Length", "41");
-        headers[10] = new BasicHeader("Connection", "Keep-Alive");
-        headers[11] = new BasicHeader("Accept-Encoding", "gzip");
-        headers[12] = new BasicHeader("User-Agent", "okhttp/4.8.0");
-        headers[13] = new BasicHeader("x-rpc-device_model", "Redmi Note 4");
-        headers[13] = new BasicHeader("isLogin", "true");
-        headers[14] = new BasicHeader("DS", getDS());
-        headers[15] = new BasicHeader("cookie", "stuid=" + stuid + ";stoken=" + stoken + ";");
-        return headers;
+        return new HeaderBuilder.Builder()
+                .add("x-rpc-client_type", getClientType())
+                .add("x-rpc-app_version", getAppVersion())
+                .add("x-rpc-sys_version", "10").add("x-rpc-channel", "miyousheluodi")
+                .add("x-rpc-device_id", UUID.randomUUID().toString().replace("-", "").toLowerCase())
+                .add("x-rpc-device_name", "Xiaomi Redmi Note 4")
+                .add("Referer", "https://app.mihoyo.com")
+                .add("Content-Type", "application/json")
+                .add("Host", "bbs-api.mihoyo.com")
+//        .add("Content-Length", "41");
+                .add("Connection", "Keep-Alive")
+                .add("Accept-Encoding", "gzip")
+                .add("User-Agent", "okhttp/4.8.0")
+                .add("x-rpc-device_model", "Redmi Note 4")
+                .add("isLogin", "true")
+                .add("DS", getDS())
+                .add("cookie", "stuid=" + stuid + ";stoken=" + stoken + ";").build();
     }
 
 }
