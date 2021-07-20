@@ -1,9 +1,8 @@
 package org.ponking.gih.util;
 
-import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ponking.gih.gs.GenshinHelperProperties;
+import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.Tag;

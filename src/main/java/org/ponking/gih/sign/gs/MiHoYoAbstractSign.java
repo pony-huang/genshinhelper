@@ -1,8 +1,9 @@
-package org.ponking.gih.gs;
+package org.ponking.gih.sign.gs;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
+import org.ponking.gih.sign.Sign;
 
 import java.util.*;
 
@@ -10,7 +11,7 @@ import java.util.*;
  * @Author ponking
  * @Date 2021/5/26 10:15
  */
-public abstract class AbstractSign {
+public abstract class MiHoYoAbstractSign implements Sign {
 
     public final String cookie;
 
@@ -22,16 +23,15 @@ public abstract class AbstractSign {
 
     private String type = "5";
 
-    private final String CONSTANTS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-
-    public AbstractSign(String cookie) {
+    public MiHoYoAbstractSign(String cookie) {
         this.cookie = cookie;
     }
 
     public abstract void doSign() throws Exception;
 
-    protected Header[] getHeaders() {
+    @Override
+    public Header[] getHeaders() {
         return new HeaderBuilder.Builder().add("x-rpc-device_id", UUID.randomUUID().toString().replace("-", "").toUpperCase())
                 .add("Content-Type", "application/json;charset=UTF-8")
                 .add("x-rpc-client_type", getClientType())
@@ -69,6 +69,7 @@ public abstract class AbstractSign {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i <= 6; i++) {
+            String CONSTANTS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             int number = random.nextInt(CONSTANTS.length());
             char charAt = CONSTANTS.charAt(number);
             sb.append(charAt);
@@ -86,13 +87,13 @@ public abstract class AbstractSign {
             private final Map<String, String> header = new HashMap<>();
 
             public HeaderBuilder.Builder add(String name, String value) {
-                header.put(name, value);
+                this.header.put(name, value);
                 return this;
             }
 
             public HeaderBuilder.Builder addAll(Header[] headers) {
                 for (Header h : headers) {
-                    header.put(h.getName(), h.getValue());
+                    this.header.put(h.getName(), h.getValue());
                 }
                 return this;
             }
@@ -130,5 +131,13 @@ public abstract class AbstractSign {
 
     public void setSalt(String salt) {
         this.salt = salt;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

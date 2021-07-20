@@ -1,4 +1,4 @@
-package org.ponking.gih.gs;
+package org.ponking.gih.sign.gs;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
-import org.ponking.gih.gs.pojo.PostResult;
+import org.ponking.gih.sign.gs.pojo.PostResult;
 import org.ponking.gih.util.HttpUtils;
 import org.ponking.gih.util.LoggerUtils;
 
@@ -14,13 +14,12 @@ import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Stream;
 
 /**
  * @Author ponking
  * @Date 2021/5/26 9:18
  */
-public class MiHoYoSign extends AbstractSign {
+public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
     private final MiHoYoConfig.Hub hub;
 
@@ -45,14 +44,14 @@ public class MiHoYoSign extends AbstractSign {
      */
     private final static int SHARE_NUM = 3;
 
-    public MiHoYoSign(MiHoYoConfig.Hub hub, String stuid, String stoken) {
+    public MiHoYoSignMiHoYo(MiHoYoConfig.Hub hub, String stuid, String stoken) {
         this(null, hub, stuid, stoken);
     }
 
     private final ExecutorService pool = new ThreadPoolExecutor(3, 3, 20,
             TimeUnit.SECONDS, new LinkedBlockingDeque<>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
 
-    public MiHoYoSign(String cookie, MiHoYoConfig.Hub hub, String stuid, String stoken) {
+    public MiHoYoSignMiHoYo(String cookie, MiHoYoConfig.Hub hub, String stuid, String stoken) {
         super(cookie);
         this.hub = hub;
         this.stuid = stuid;
@@ -124,7 +123,7 @@ public class MiHoYoSign extends AbstractSign {
      * 原神签到
      */
     public void sign() {
-        JSONObject signResult = HttpUtils.doPost(String.format(MiHoYoConfig.HUB_SIGN_URL, hub.getForumId()), getHubApiHeaders(), null);
+        JSONObject signResult = HttpUtils.doPost(String.format(MiHoYoConfig.HUB_SIGN_URL, hub.getForumId()), getHeaders(), null);
         if ("OK".equals(signResult.get("message")) || "重复".equals(signResult.get("message"))) {
             LoggerUtils.info("社区签到: {}", signResult.get("message"));
         } else {
@@ -158,7 +157,7 @@ public class MiHoYoSign extends AbstractSign {
      * @throws Exception
      */
     public List<PostResult> getPosts(String url) throws Exception {
-        JSONObject result = HttpUtils.doGet(url, getHubApiHeaders());
+        JSONObject result = HttpUtils.doGet(url, getHeaders());
         if ("OK".equals(result.get("message"))) {
             JSONArray jsonArray = result.getJSONObject("data").getJSONArray("list");
             List<PostResult> posts = JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {
@@ -179,7 +178,7 @@ public class MiHoYoSign extends AbstractSign {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, hub.getForumId()), getDoTaskHubApiHeaders(), data);
+        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, hub.getForumId()), getHeaders(), data);
         if ("OK".equals(result.get("message"))) {
             return true;
         } else {
@@ -196,7 +195,7 @@ public class MiHoYoSign extends AbstractSign {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
-        JSONObject result = HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getHubApiHeaders(), data);
+        JSONObject result = HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getHeaders(), data);
         if ("OK".equals(result.get("message"))) {
             return true;
         } else {
@@ -210,7 +209,7 @@ public class MiHoYoSign extends AbstractSign {
      * @param post
      */
     public boolean sharePost(PostResult post) {
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getForumId()), getDoTaskHubApiHeaders());
+        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getForumId()), getHeaders());
         if ("OK".equals(result.get("message"))) {
             return true;
         } else {
@@ -245,17 +244,8 @@ public class MiHoYoSign extends AbstractSign {
         return null;
     }
 
-    public Header[] getHubApiHeaders() {
-        Header[] t = getHeaders();
-        BasicHeader[] h = new BasicHeader[t.length + 1];
-        BasicHeader h1 = new BasicHeader("cookie", "stuid=" + stuid + ";stoken=" + stoken + ";");
-        System.arraycopy(t, 0, h, 0, t.length);
-        h[h.length - 1] = h1;
-        return h;
-    }
-
-
-    public Header[] getDoTaskHubApiHeaders() {
+    @Override
+    public Header[] getHeaders() {
         return new HeaderBuilder.Builder()
                 .add("x-rpc-client_type", getClientType())
                 .add("x-rpc-app_version", getAppVersion())

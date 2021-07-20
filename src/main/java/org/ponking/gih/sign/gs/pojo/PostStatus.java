@@ -1,7 +1,7 @@
 /**
  * Copyright 2021 bejson.com
  */
-package org.ponking.gih.gs.pojo;
+package org.ponking.gih.sign.gs.pojo;
 
 /**
  * Auto-generated: 2021-05-26 15:6:8

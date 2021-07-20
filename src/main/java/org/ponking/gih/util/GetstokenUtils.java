@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
-import org.ponking.gih.gs.MiHoYoConfig;
+import org.ponking.gih.sign.gs.MiHoYoConfig;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;

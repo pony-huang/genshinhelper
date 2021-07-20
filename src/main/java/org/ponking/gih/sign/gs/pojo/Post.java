@@ -1,7 +1,7 @@
 /**
  * Copyright 2021 bejson.com
  */
-package org.ponking.gih.gs.pojo;
+package org.ponking.gih.sign.gs.pojo;
 
 import java.util.List;
 import java.util.Date;

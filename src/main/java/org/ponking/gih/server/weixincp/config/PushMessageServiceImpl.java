@@ -32,11 +32,10 @@ public class PushMessageServiceImpl implements PushMessageService {
 
     private final String TOKEN_URL = "https://qyapi.weixin.qq.com/cgi-bin/gettoken";
 
+    private final WXUserInfo userInfo;
 
-    private final WeixinCpConfig.WeiXinApp MY_APP;
-
-    public PushMessageServiceImpl(WeixinCpConfig.WeiXinApp MY_APP) {
-        this.MY_APP = MY_APP;
+    public PushMessageServiceImpl(WXUserInfo userInfo) {
+        this.userInfo = userInfo;
     }
 
     @Override
@@ -46,7 +45,7 @@ public class PushMessageServiceImpl implements PushMessageService {
             params.add(new BasicNameValuePair("text", text));
             URI uri = new URIBuilder(BASE_URL)
                     .setParameters(params).build();
-            AppPushTextParam param = AppPushTextParam.build(text, MY_APP.getAgentId());
+            AppPushTextParam param = AppPushTextParam.build(text, userInfo.getAgentId(), userInfo.getToUser());
             StringEntity entity = new StringEntity(JSON.toJSONString(param), StandardCharsets.UTF_8);
             HttpEntity httpEntity = HttpUtils.doPost(uri, entity);
             assert httpEntity != null;
@@ -64,8 +63,9 @@ public class PushMessageServiceImpl implements PushMessageService {
             List<NameValuePair> params = getBasicParams();
             URI uri = new URIBuilder(BASE_URL)
                     .setParameters(params).build();
-            AppPushTextCardParam param = AppPushTextCardParam.build(MY_APP.getAgentId(), message.getDescription(),
-                    message.getTitle(), message.getUrl(), message.getBtntxt() == null ? "更多" : message.getBtntxt());
+            String btntxt = message.getBtntxt() == null ? "更多" : message.getBtntxt();
+            AppPushTextCardParam param = AppPushTextCardParam.build(userInfo.getAgentId(), message.getDescription(), btntxt,
+                    message.getTitle(), message.getUrl(), userInfo.getToUser());
             StringEntity entity = new StringEntity(JSON.toJSONString(param), StandardCharsets.UTF_8);
             HttpEntity httpEntity = HttpUtils.doPost(uri, entity);
             assert httpEntity != null;
@@ -84,7 +84,7 @@ public class PushMessageServiceImpl implements PushMessageService {
             params.add(new BasicNameValuePair("markdown", content));
             URI uri = new URIBuilder(BASE_URL)
                     .setParameters(params).build();
-            AppPushMarkdownParam param = AppPushMarkdownParam.build(content, MY_APP.getAgentId());
+            AppPushMarkdownParam param = AppPushMarkdownParam.build(content, userInfo.getAgentId(), userInfo.getToUser());
             StringEntity entity = new StringEntity(JSON.toJSONString(param), StandardCharsets.UTF_8);
             HttpEntity httpEntity = HttpUtils.doPost(uri, entity);
             assert httpEntity != null;
@@ -101,8 +101,8 @@ public class PushMessageServiceImpl implements PushMessageService {
             List<NameValuePair> params = getBasicParams();
             URI uri = new URIBuilder(BASE_URL)
                     .setParameters(params).build();
-            AppPushTextCardParam param = AppPushTextCardParam.build(MY_APP.getAgentId(), text,
-                    title, "https://github.com/PonKing66/genshi-helper", "更多");
+            AppPushTextCardParam param = AppPushTextCardParam.build(userInfo.getAgentId(), text, "更多",
+                    title, "https://github.com/PonKing66/genshi-helper", userInfo.getToUser());
             StringEntity entity = new StringEntity(JSON.toJSONString(param), StandardCharsets.UTF_8);
             HttpEntity httpEntity = HttpUtils.doPost(uri, entity);
             assert httpEntity != null;
@@ -119,8 +119,8 @@ public class PushMessageServiceImpl implements PushMessageService {
         AccessTokenResult result = null;
         try {
             List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("corpid", MY_APP.getCorpId()));
-            params.add(new BasicNameValuePair("corpsecret", MY_APP.getCorpSecret()));
+            params.add(new BasicNameValuePair("corpid", userInfo.getCorpId()));
+            params.add(new BasicNameValuePair("corpsecret", userInfo.getCorpSecret()));
             URI uri = new URIBuilder(TOKEN_URL)
                     .setParameters(params).build();
             HttpEntity httpEntity = HttpUtils.doGetDefault(uri);

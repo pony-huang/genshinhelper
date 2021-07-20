@@ -21,7 +21,6 @@ public class BaseParam {
 
     private Integer enable_duplicate_check;
 
-
     private final String msgtype;
 
     public BaseParam(String msgtype) {

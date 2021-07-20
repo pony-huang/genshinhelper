@@ -1,4 +1,4 @@
-package org.ponking.gih.gs.pojo;
+package org.ponking.gih.sign.gs.pojo;
 
 /**
  * @Author ponking

@@ -1,6 +1,6 @@
 package org.ponking.gih;
 
-import org.ponking.gih.gs.GenshinHelperProperties;
+import org.ponking.gih.sign.gs.GenshinHelperProperties;
 
 /**
  * @Author ponking

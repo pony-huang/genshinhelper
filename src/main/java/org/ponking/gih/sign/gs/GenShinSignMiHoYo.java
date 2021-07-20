@@ -1,12 +1,10 @@
-package org.ponking.gih.gs;
+package org.ponking.gih.sign.gs;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
-import org.ponking.gih.gs.pojo.Award;
+import org.ponking.gih.sign.gs.pojo.Award;
 import org.ponking.gih.util.HttpUtils;
 import org.ponking.gih.util.LoggerUtils;
 
@@ -17,11 +15,11 @@ import java.util.*;
  * @Author ponking
  * @Date 2021/5/7 10:10
  */
-public class GenShinSign extends AbstractSign {
+public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
 
     private String uid;
 
-    public GenShinSign(String cookie) {
+    public GenShinSignMiHoYo(String cookie) {
         super(cookie);
         setClientType("5");
         setAppVersion("2.3.0");

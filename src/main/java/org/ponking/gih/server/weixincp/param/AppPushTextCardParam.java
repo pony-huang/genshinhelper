@@ -16,27 +16,26 @@ public class AppPushTextCardParam extends BaseParam {
 
 
     public static AppPushTextCardParam build(String agentid, CardMessage message) {
-        TextCard t = new TextCard(message.getDescription(),
-                message.getTitle(), message.getUrl(), message.getBtntxt());
-        AppPushTextCardParam param = new AppPushTextCardParam();
-        param.setTextcard(t).setToparty("@all").setTouser("@all").setTotag("@all").setAgentid(agentid).
-                setEnable_duplicate_check(0).setEnable_id_trans(0).setSafe(0);
-        return param;
+        return build(agentid, message.getDescription(), message.getTitle(), message.getUrl(), message.getBtntxt(), "@all", "@all", "@all");
     }
 
     public static AppPushTextCardParam build(String agentid, String description, String title, String url) {
-        TextCard t = new TextCard(description, title, url, "更多");
-        AppPushTextCardParam param = new AppPushTextCardParam();
-        param.setTextcard(t).setToparty("@all").setTouser("@all").setTotag("@all").setAgentid(agentid).
-                setEnable_duplicate_check(0).setEnable_id_trans(0).setSafe(0);
-        return param;
+        return build(agentid, description, title, url, "更多", "@all", "@all", "@all");
+    }
+
+    public static AppPushTextCardParam build(String agentid, String description, String btntxt, String title, String url) {
+        return build(agentid, description, title, url, btntxt, "@all", "@all", "@all");
     }
 
 
-    public static AppPushTextCardParam build(String agentid, String description, String title, String url, String btntxt) {
+    public static AppPushTextCardParam build(String agentid, String description, String btntxt, String title, String url, String toUser) {
+        return build(agentid, description, title, url, btntxt, toUser, "@all", "@all");
+    }
+
+    public static AppPushTextCardParam build(String agentid, String description, String btntxt, String title, String url, String toUser, String toParty, String toTag) {
         TextCard t = new TextCard(description, title, url, btntxt);
         AppPushTextCardParam param = new AppPushTextCardParam();
-        param.setTextcard(t).setToparty("@all").setTouser("@all").setTotag("@all").setAgentid(agentid).
+        param.setTextcard(t).setToparty(toParty).setTouser(toUser).setTotag(toTag).setAgentid(agentid).
                 setEnable_duplicate_check(0).setEnable_id_trans(0).setSafe(0);
         return param;
     }
