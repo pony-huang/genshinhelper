@@ -1,4 +1,4 @@
-package org.ponking.gih.server.weixincp.config;
+package org.ponking.gih.server.weixincp.service;
 
 import org.ponking.gih.server.weixincp.result.Result;
 

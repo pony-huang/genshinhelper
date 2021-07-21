@@ -7,52 +7,34 @@ import org.apache.logging.log4j.Logger;
  * @Author ponking
  * @Date 2021/6/16 20:06
  */
-public class LoggerUtils {
+public class LoggerUtils implements org.ponking.gih.util.Logger {
 
     private static final Logger logger = LogManager.getLogger(LoggerUtils.class.getName());
 
-    public static boolean flag = true;
 
-    private static StringBuffer log;
-
-    static {
-        if (System.getProperty("gslog") != null) {
-            flag = Boolean.parseBoolean(System.getProperty("gslog"));
-            log = new StringBuffer();
-        }
+    @Override
+    public void warn(String message, Object... params) {
+        logger.warn(message, params);
     }
 
-    public static void warn(String message, Object... params) {
-        if (flag) {
-            logger.warn(message, params);
-        } else {
-            log.append(getMessage(message, params) + "\n");
-        }
+    @Override
+    public void error(String message, Object... params) {
+        logger.error(message, params);
     }
 
-
-    public static void info(String message, Object... params) {
-        if (flag) {
-            logger.info(message, params);
-        } else {
-            log.append(getMessage(message, params) + "\n");
-        }
+    @Override
+    public void info(String message, Object... params) {
+        logger.info(message, params);
     }
 
-
-    public static void debug(String message, Object... params) {
-        if (flag) {
-            logger.info(message, params);
-        } else {
-            log.append(getMessage(message, params) + "\n");
-        }
+    @Override
+    public void debug(String message, Object... params) {
+        logger.debug(message, params);
     }
 
-    private static String getMessage(String message, Object... params) {
-        return String.format(message.replace("{}", "%s"), params);
+    @Override
+    public String getCurThreadLog() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
     }
 
-    public static String getLog() {
-        return log.toString();
-    }
 }

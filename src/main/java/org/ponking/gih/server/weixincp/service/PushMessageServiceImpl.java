@@ -1,4 +1,4 @@
-package org.ponking.gih.server.weixincp.config;
+package org.ponking.gih.server.weixincp.service;
 
 import com.alibaba.fastjson.JSON;
 import org.apache.http.HttpEntity;
@@ -96,12 +96,12 @@ public class PushMessageServiceImpl implements PushMessageService {
         return null;
     }
 
-    public void sendWithTextCard(String title, String text) {
+    public void sendWithTextCard(String title, String desp) {
         try {
             List<NameValuePair> params = getBasicParams();
             URI uri = new URIBuilder(BASE_URL)
                     .setParameters(params).build();
-            AppPushTextCardParam param = AppPushTextCardParam.build(userInfo.getAgentId(), text, "更多",
+            AppPushTextCardParam param = AppPushTextCardParam.build(userInfo.getAgentId(), desp, "更多",
                     title, "https://github.com/PonKing66/genshi-helper", userInfo.getToUser());
             StringEntity entity = new StringEntity(JSON.toJSONString(param), StandardCharsets.UTF_8);
             HttpEntity httpEntity = HttpUtils.doPost(uri, entity);

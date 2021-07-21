@@ -1,8 +1,8 @@
 package org.ponking.gih.push;
 
 
-import org.ponking.gih.server.weixincp.config.PushMessageServiceImpl;
-import org.ponking.gih.server.weixincp.config.WXUserInfo;
+import org.ponking.gih.server.weixincp.service.PushMessageServiceImpl;
+import org.ponking.gih.server.weixincp.service.WXUserInfo;
 import org.ponking.gih.util.FileUtils;
 
 /**
@@ -28,7 +28,7 @@ public class WeixinCPMessagePush implements MessagePush {
         int start = 0;
         while (log.length() > start) { // 企业微信推送消息限制长度512
             String ms = log.substring(start, Math.min(start + 512, log.length()));
-            sendMessage((start == 0 ? title + "\n" : "") + ms);
+            sendMessageTexTType((start == 0 ? title + "\n" : "") + ms);
             start += 512;
         }
     }
@@ -36,10 +36,10 @@ public class WeixinCPMessagePush implements MessagePush {
 
     public void sendMessageCardType(String title, String desp) {
         PushMessageServiceImpl service = new PushMessageServiceImpl(userInfo);
-        service.sendWithTextCard(title, FileUtils.loadDaily());
+        service.sendWithTextCard(title, desp);
     }
 
-    public void sendMessage(String content) {
+    public void sendMessageTexTType(String content) {
         PushMessageServiceImpl service = new PushMessageServiceImpl(userInfo);
         service.sendWithText(content);
     }

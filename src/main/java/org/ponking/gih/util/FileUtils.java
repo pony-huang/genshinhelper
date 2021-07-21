@@ -23,8 +23,8 @@ public class FileUtils {
     }
 
     public static String loadDaily() {
-        if (!LoggerUtils.flag) {
-            return LoggerUtils.getLog();
+        if (!LoggerFactory.isFlag()) {
+            return LoggerFactory.getInstance().getCurThreadLog();
         }
         return loadDailyFile();
     }

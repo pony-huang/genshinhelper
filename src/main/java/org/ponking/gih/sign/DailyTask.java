@@ -1,28 +1,27 @@
 package org.ponking.gih.sign;
 
+import lombok.SneakyThrows;
 import org.ponking.gih.push.MessagePush;
 import org.ponking.gih.push.ServerChanMessagePush;
 import org.ponking.gih.push.WeixinCPMessagePush;
-import org.ponking.gih.server.weixincp.config.WXUserInfo;
-import org.ponking.gih.server.weixincp.config.WXUserInfoFactory;
+import org.ponking.gih.server.weixincp.service.WXUserInfo;
 import org.ponking.gih.sign.gs.GenShinSignMiHoYo;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.sign.gs.MiHoYoConfig;
 import org.ponking.gih.sign.gs.MiHoYoSignMiHoYo;
+import org.ponking.gih.util.LoggerFactory;
 
 /**
  * @Author ponking
  * @Date 2021/5/31 15:54
  */
-public class DailyTask {
+public class DailyTask implements Runnable {
 
     public GenShinSignMiHoYo genShinSign;
 
     public MiHoYoSignMiHoYo miHoYoSign;
 
     public MessagePush messagePush = null;
-
-    public String[] args;
 
     public boolean pushed = false; // 是否推送日志
 
@@ -62,13 +61,25 @@ public class DailyTask {
         }
     }
 
+    @SneakyThrows
+    @Override
+    public void run() {
+        doDailyTask();
+    }
 
-    public void doDailyTask() throws Exception {
+    public void doDailyTask() {
         if (miHoYoSign != null) {
-            miHoYoSign.doSign();
+            try {
+                miHoYoSign.doSign();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         if (genShinSign != null) {
             genShinSign.sign();
+        }
+        if (isPushed() && getMessagePush() != null) {
+            getMessagePush().sendMessage("原神签到", LoggerFactory.getInstance().getCurThreadLog());
         }
     }
 

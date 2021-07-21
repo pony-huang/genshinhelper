@@ -1,6 +1,6 @@
 package org.ponking.gih.server.weixincp.param;
 
-import org.ponking.gih.server.weixincp.config.CardMessage;
+import org.ponking.gih.server.weixincp.service.CardMessage;
 
 /**
  * @Author ponking
@@ -20,16 +20,16 @@ public class AppPushTextCardParam extends BaseParam {
     }
 
     public static AppPushTextCardParam build(String agentid, String description, String title, String url) {
-        return build(agentid, description, title, url, "更多", "@all", "@all", "@all");
+        return build(agentid, description, "更多", title, url, "@all", "@all", "@all");
     }
 
     public static AppPushTextCardParam build(String agentid, String description, String btntxt, String title, String url) {
-        return build(agentid, description, title, url, btntxt, "@all", "@all", "@all");
+        return build(agentid, description, btntxt, title, url, "@all", "@all", "@all");
     }
 
 
     public static AppPushTextCardParam build(String agentid, String description, String btntxt, String title, String url, String toUser) {
-        return build(agentid, description, title, url, btntxt, toUser, "@all", "@all");
+        return build(agentid, description, btntxt, title, url, toUser, "@all", "@all");
     }
 
     public static AppPushTextCardParam build(String agentid, String description, String btntxt, String title, String url, String toUser, String toParty, String toTag) {

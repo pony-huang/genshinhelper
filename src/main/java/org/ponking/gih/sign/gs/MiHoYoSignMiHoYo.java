@@ -8,6 +8,7 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.ponking.gih.sign.gs.pojo.PostResult;
 import org.ponking.gih.util.HttpUtils;
+import org.ponking.gih.util.LoggerFactory;
 import org.ponking.gih.util.LoggerUtils;
 
 import java.lang.reflect.Method;
@@ -63,23 +64,24 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
     @Override
     public void doSign() throws Exception {
-        LoggerUtils.info("社区签到任务开始");
+
+        LoggerFactory.getInstance().info("社区签到任务开始");
         sign();
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
         genShinHomePosts.addAll(homePosts);
-        LoggerUtils.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
+        LoggerFactory.getInstance().info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
         //执行任务
         Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, genShinHomePosts));
         Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, genShinHomePosts));
         Future<Integer> upf0 = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, homePosts));
         Future<Integer> upf = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts));
         //打印日志
-        LoggerUtils.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
-        LoggerUtils.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
-        LoggerUtils.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
+        LoggerFactory.getInstance().info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
+        LoggerFactory.getInstance().info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
+        LoggerFactory.getInstance().info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
         pool.shutdown();
-        LoggerUtils.info("社区签到任务完成");
+        LoggerFactory.getInstance().info("社区签到任务完成");
     }
 
     public Callable<Integer> createTask(Object obj, String methodName, int num, List<PostResult> posts) {
@@ -125,9 +127,9 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
     public void sign() {
         JSONObject signResult = HttpUtils.doPost(String.format(MiHoYoConfig.HUB_SIGN_URL, hub.getForumId()), getHeaders(), null);
         if ("OK".equals(signResult.get("message")) || "重复".equals(signResult.get("message"))) {
-            LoggerUtils.info("社区签到: {}", signResult.get("message"));
+            LoggerFactory.getInstance().info("社区签到: {}", signResult.get("message"));
         } else {
-            LoggerUtils.info("社区签到失败: {}", signResult.get("message"));
+            LoggerFactory.getInstance().info("社区签到失败: {}", signResult.get("message"));
         }
     }
 
@@ -227,7 +229,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         JSONObject result = HttpUtils.
                 doGet(String.format(MiHoYoConfig.HUB_COOKIE2_URL, getCookieByName("login_ticket"), getCookieByName("account_id")), getHeaders());
         if (!"OK".equals(result.get("message"))) {
-            LoggerUtils.info("login_ticket已失效,请重新登录获取");
+            LoggerFactory.getInstance().info("login_ticket已失效,请重新登录获取");
             throw new Exception("login_ticket已失效,请重新登录获取");
         }
         return (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("token");

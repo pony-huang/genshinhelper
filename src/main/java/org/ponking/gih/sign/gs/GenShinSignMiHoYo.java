@@ -6,10 +6,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import org.ponking.gih.sign.gs.pojo.Award;
 import org.ponking.gih.util.HttpUtils;
-import org.ponking.gih.util.LoggerUtils;
+import org.ponking.gih.util.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author ponking
@@ -43,27 +45,27 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
         data.put("uid", uid);
         JSONObject signResult = HttpUtils.doPost(MiHoYoConfig.SIGN_URL, getHeaders(), data);
         if (signResult.getInteger("retcode") == 0) {
-            LoggerUtils.info("原神签到福利成功：{}", signResult.get("message"));
+            LoggerFactory.getInstance().info("原神签到福利成功：{}", signResult.get("message"));
         } else {
-            LoggerUtils.info("原神签到福利签到失败：{}", signResult.get("message"));
+            LoggerFactory.getInstance().info("原神签到福利签到失败：{}", signResult.get("message"));
         }
     }
 
     public void sign() {
-        LoggerUtils.info("原神福利签到开始");
+        LoggerFactory.getInstance().info("原神福利签到开始");
         String uid = getUid();
         setUid(uid);
         isSigned();
         doSign();
-        LoggerUtils.info("原神福利签到完成");
+        LoggerFactory.getInstance().info("原神福利签到完成");
     }
 
     public String getUid() {
         JSONObject result = HttpUtils.doGet(MiHoYoConfig.ROLE_URL, getBasicHeaders());
         String uid = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("game_uid");
         String nickname = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("nickname");
-        LoggerUtils.info("获取用户UID：{}", uid);
-        LoggerUtils.info("当前用户名称：{}", nickname);
+        LoggerFactory.getInstance().info("获取用户UID：{}", uid);
+        LoggerFactory.getInstance().info("当前用户名称：{}", nickname);
         return uid;
     }
 
@@ -101,8 +103,8 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
         int day = isSign ? totalSignDay : totalSignDay + 1;
         Award award = getAwardInfo(day);
 
-        LoggerUtils.info("{}月已签到{}天", time.getMonth().getValue(), totalSignDay);
-        LoggerUtils.info("今天{}签到可获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
+        LoggerFactory.getInstance().info("{}月已签到{}天", time.getMonth().getValue(), totalSignDay);
+        LoggerFactory.getInstance().info("今天{}签到可获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
         return isSign;
     }
 
