@@ -12,7 +12,6 @@ public interface Logger {
 
     void error(String message, Object... params);
 
-
     void debug(String message, Object... params);
 
     String getCurThreadLog() throws UnsupportedOperationException;

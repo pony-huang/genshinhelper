@@ -27,7 +27,7 @@ public class LoggerFactory {
                     if (!flag) {
                         instance = new LoggerCache();
                     } else {
-                        instance = new LoggerUtils();
+                        instance = new LoggerDefault();
                     }
                 }
             }

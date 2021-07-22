@@ -7,9 +7,9 @@ import org.apache.logging.log4j.Logger;
  * @Author ponking
  * @Date 2021/6/16 20:06
  */
-public class LoggerUtils implements org.ponking.gih.util.Logger {
+public class LoggerDefault implements org.ponking.gih.util.Logger {
 
-    private static final Logger logger = LogManager.getLogger(LoggerUtils.class.getName());
+    private static final Logger logger = LogManager.getLogger(LoggerDefault.class.getName());
 
 
     @Override
