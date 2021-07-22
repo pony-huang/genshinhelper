@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import org.ponking.gih.sign.gs.pojo.Award;
 import org.ponking.gih.util.HttpUtils;
-import org.ponking.gih.util.LoggerFactory;
+import org.ponking.gih.util.log.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

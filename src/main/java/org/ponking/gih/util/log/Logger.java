@@ -1,4 +1,4 @@
-package org.ponking.gih.util;
+package org.ponking.gih.util.log;
 
 /**
  * @Author ponking

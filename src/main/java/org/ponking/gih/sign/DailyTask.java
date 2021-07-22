@@ -9,7 +9,7 @@ import org.ponking.gih.sign.gs.GenShinSignMiHoYo;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.sign.gs.MiHoYoConfig;
 import org.ponking.gih.sign.gs.MiHoYoSignMiHoYo;
-import org.ponking.gih.util.LoggerFactory;
+import org.ponking.gih.util.log.LoggerFactory;
 
 /**
  * @Author ponking

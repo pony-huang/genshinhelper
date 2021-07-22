@@ -1,4 +1,6 @@
-package org.ponking.gih.util;
+package org.ponking.gih.util.log;
+
+import org.apache.logging.log4j.LogManager;
 
 /**
  * @Author ponking
@@ -6,24 +8,27 @@ package org.ponking.gih.util;
  */
 public class AbstractLogger implements Logger {
 
-    @Override
-    public void info(String message, Object... params) {
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(LoggerDefault.class.getName());
 
-    }
 
     @Override
     public void warn(String message, Object... params) {
-
+        logger.warn(message, params);
     }
 
     @Override
     public void error(String message, Object... params) {
+        logger.error(message, params);
+    }
 
+    @Override
+    public void info(String message, Object... params) {
+        logger.info(message, params);
     }
 
     @Override
     public void debug(String message, Object... params) {
-
+        logger.debug(message, params);
     }
 
     @Override

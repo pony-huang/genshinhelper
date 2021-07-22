@@ -5,11 +5,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
 import org.ponking.gih.sign.gs.pojo.PostResult;
 import org.ponking.gih.util.HttpUtils;
-import org.ponking.gih.util.LoggerFactory;
-import org.ponking.gih.util.LoggerUtils;
+import org.ponking.gih.util.log.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;

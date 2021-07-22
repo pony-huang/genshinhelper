@@ -1,8 +1,7 @@
 package org.ponking.gih.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
+import org.ponking.gih.util.log.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -15,9 +14,6 @@ import java.util.Map;
  * @Date 2021/5/7 13:13
  */
 public class FileUtils {
-
-
-    private static Logger logger = LogManager.getLogger(FileUtils.class.getName());
 
     private FileUtils() {
     }
@@ -96,7 +92,6 @@ public class FileUtils {
     public static GenshinHelperProperties loadSettingYaml(String fileName) throws FileNotFoundException {
         if ("genshin-helper.yaml".equals(fileName) || "genshin-helper-auto.yaml".equals(fileName)) {
             fileName = System.getProperty("user.dir") + File.separator + fileName;
-            logger.info("当前文件路径：{}", fileName);
         }
         File file = new File(fileName);
         if (!file.exists()) {

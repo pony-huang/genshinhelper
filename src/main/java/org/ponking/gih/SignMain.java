@@ -8,7 +8,7 @@ import org.ponking.gih.server.weixincp.service.WXUserInfo;
 import org.ponking.gih.sign.DailyTask;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.util.FileUtils;
-import org.ponking.gih.util.LoggerFactory;
+import org.ponking.gih.util.log.LoggerFactory;
 
 import java.io.File;
 import java.util.concurrent.LinkedBlockingDeque;
