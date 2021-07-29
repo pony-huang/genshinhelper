@@ -4,9 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ponking.gih.sign.gs.pojo.Award;
 import org.ponking.gih.util.HttpUtils;
-import org.ponking.gih.util.log.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -18,6 +19,8 @@ import java.util.Map;
  * @Date 2021/5/7 10:10
  */
 public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
+
+    private static Logger log = LogManager.getLogger(HttpUtils.class.getName());
 
     private String uid;
 
@@ -45,27 +48,27 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
         data.put("uid", uid);
         JSONObject signResult = HttpUtils.doPost(MiHoYoConfig.SIGN_URL, getHeaders(), data);
         if (signResult.getInteger("retcode") == 0) {
-            LoggerFactory.getInstance().info("原神签到福利成功：{}", signResult.get("message"));
+            log.info("原神签到福利成功：{}", signResult.get("message"));
         } else {
-            LoggerFactory.getInstance().info("原神签到福利签到失败：{}", signResult.get("message"));
+            log.info("原神签到福利签到失败：{}", signResult.get("message"));
         }
     }
 
     public void sign() {
-        LoggerFactory.getInstance().info("原神福利签到开始");
+        log.info("原神福利签到开始");
         String uid = getUid();
         setUid(uid);
         isSigned();
         doSign();
-        LoggerFactory.getInstance().info("原神福利签到完成");
+        log.info("原神福利签到完成");
     }
 
     public String getUid() {
         JSONObject result = HttpUtils.doGet(MiHoYoConfig.ROLE_URL, getBasicHeaders());
         String uid = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("game_uid");
         String nickname = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("nickname");
-        LoggerFactory.getInstance().info("获取用户UID：{}", uid);
-        LoggerFactory.getInstance().info("当前用户名称：{}", nickname);
+        log.info("获取用户UID：{}", uid);
+        log.info("当前用户名称：{}", nickname);
         return uid;
     }
 
@@ -103,8 +106,8 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
         int day = isSign ? totalSignDay : totalSignDay + 1;
         Award award = getAwardInfo(day);
 
-        LoggerFactory.getInstance().info("{}月已签到{}天", time.getMonth().getValue(), totalSignDay);
-        LoggerFactory.getInstance().info("今天{}签到可获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
+        log.info("{}月已签到{}天", time.getMonth().getValue(), totalSignDay);
+        log.info("今天{}签到可获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
         return isSign;
     }
 

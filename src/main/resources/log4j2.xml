@@ -1,20 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="warn"
+               packages="com.hoperun.zhulongxiang.asnc_print_different_logfile">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss}{GMT+8} %-5level : %msg%n"/>
-        </Console>
-        <RollingFile name="RollingFile" fileName="logs/daily.log" append="false"
-                     filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
-            <PatternLayout pattern="%msg%n"/>
-            <SizeBasedTriggeringPolicy size="5 MB"/>
-        </RollingFile>
+        <console name="console" target="system_out">
+            <patternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%n"/>
+        </console>
+        <Routing name="Routing">
+            <Routes pattern="$${thread:threadName}">
+                <Route>
+                    <RollingFile name="logFile-${thread:threadName}"
+                                 append="false"
+                                 fileName="logs/${thread:threadName}.log"
+                                 filePattern="logs/${thread:threadName}-%d{MM-dd-yyyy}.log">
+                        <PatternLayout pattern="%msg%n"/>
+                        <!-- 设置每天晚上12点清除过期日志文件 -->
+                        <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+                        <Policies>
+                            <SizeBasedTriggeringPolicy size="5 MB"/>
+                            <TimeBasedTriggeringPolicy modulate="true" />
+                        </Policies>
+<!--                        <DefaultRolloverStrategy max="1"/>-->
+                    </RollingFile>
+                </Route>
+            </Routes>
+        </Routing>
+        <Async name="async" bufferSize="1000" includeLocation="true">
+            <AppenderRef ref="Routing"/>
+            <AppenderRef ref="console"/>
+        </Async>
     </Appenders>
-
     <Loggers>
-        <Root level="all">
-            <AppenderRef ref="Console"/>
-            <AppenderRef ref="RollingFile"/>
+        <Root level="debug">
+            <AppenderRef ref="async"/>
         </Root>
     </Loggers>
 </Configuration>

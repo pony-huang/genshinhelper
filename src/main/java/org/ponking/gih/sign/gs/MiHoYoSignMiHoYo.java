@@ -5,9 +5,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.http.Header;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ponking.gih.sign.gs.pojo.PostResult;
 import org.ponking.gih.util.HttpUtils;
-import org.ponking.gih.util.log.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
@@ -19,6 +20,8 @@ import java.util.concurrent.*;
  * @Date 2021/5/26 9:18
  */
 public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
+
+    private static Logger log = LogManager.getLogger(MiHoYoSignMiHoYo.class.getName());
 
     private final MiHoYoConfig.Hub hub;
 
@@ -43,14 +46,20 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
      */
     private final static int SHARE_NUM = 3;
 
+    /**
+     * 辣鸡服务器1v2学生机，常驻线程不会炸？
+     */
+    private ExecutorService pool;
+
     public MiHoYoSignMiHoYo(MiHoYoConfig.Hub hub, String stuid, String stoken) {
-        this(null, hub, stuid, stoken);
+        this(null, hub, stuid, stoken, null);
     }
 
-    private final ExecutorService pool = new ThreadPoolExecutor(3, 3, 20,
-            TimeUnit.SECONDS, new LinkedBlockingDeque<>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
+    public MiHoYoSignMiHoYo(MiHoYoConfig.Hub hub, String stuid, String stoken, ThreadPoolExecutor executor) {
+        this(null, hub, stuid, stoken, null);
+    }
 
-    public MiHoYoSignMiHoYo(String cookie, MiHoYoConfig.Hub hub, String stuid, String stoken) {
+    public MiHoYoSignMiHoYo(String cookie, MiHoYoConfig.Hub hub, String stuid, String stoken, ThreadPoolExecutor executor) {
         super(cookie);
         this.hub = hub;
         this.stuid = stuid;
@@ -58,28 +67,57 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         setClientType("2");
         setAppVersion("2.8.0");
         setSalt("dmq2p7ka6nsu0d3ev6nex4k1ndzrnfiy");
+        this.pool = executor;
     }
 
     @Override
     public void doSign() throws Exception {
 
-        LoggerFactory.getInstance().info("社区签到任务开始");
+        log.info("社区签到任务开始");
         sign();
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
         genShinHomePosts.addAll(homePosts);
-        LoggerFactory.getInstance().info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
+        log.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
         //执行任务
         Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, genShinHomePosts));
         Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, genShinHomePosts));
-        Future<Integer> upf0 = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, homePosts));
         Future<Integer> upf = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts));
         //打印日志
-        LoggerFactory.getInstance().info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
-        LoggerFactory.getInstance().info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
-        LoggerFactory.getInstance().info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
-        pool.shutdown();
-        LoggerFactory.getInstance().info("社区签到任务完成");
+        log.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
+        log.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
+        log.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
+//        pool.shutdown();  会导致阻塞
+        log.info("社区签到任务完成");
+    }
+
+
+    public void doSingleSign() throws Exception {
+
+        log.info("doSingleSign 社区签到任务开始");
+        sign();
+        List<PostResult> genShinHomePosts = getGenShinHomePosts();
+        List<PostResult> homePosts = getPosts();
+        genShinHomePosts.addAll(homePosts);
+        log.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
+        //执行任务
+        Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM, genShinHomePosts);
+        Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM, genShinHomePosts);
+        Callable<Integer> upVotePost = createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts);
+
+        FutureTask<Integer> vpf = new FutureTask<Integer>(viewPost);
+        FutureTask<Integer> upf = new FutureTask<Integer>(upVotePost);
+        FutureTask<Integer> spf = new FutureTask<Integer>(sharePost);
+
+        new Thread(vpf).start();
+        new Thread(upf).start();
+        new Thread(spf).start();
+
+        //打印日志
+        log.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
+        log.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
+        log.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
+        log.info("doSingleSign 社区签到任务完成");
     }
 
     public Callable<Integer> createTask(Object obj, String methodName, int num, List<PostResult> posts) {
@@ -120,14 +158,14 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
 
     /**
-     * 原神签到
+     * 原神社区签到
      */
     public void sign() {
         JSONObject signResult = HttpUtils.doPost(String.format(MiHoYoConfig.HUB_SIGN_URL, hub.getForumId()), getHeaders(), null);
         if ("OK".equals(signResult.get("message")) || "重复".equals(signResult.get("message"))) {
-            LoggerFactory.getInstance().info("社区签到: {}", signResult.get("message"));
+            log.info("社区签到: {}", signResult.get("message"));
         } else {
-            LoggerFactory.getInstance().info("社区签到失败: {}", signResult.get("message"));
+            log.info("社区签到失败: {}", signResult.get("message"));
         }
     }
 
@@ -227,7 +265,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         JSONObject result = HttpUtils.
                 doGet(String.format(MiHoYoConfig.HUB_COOKIE2_URL, getCookieByName("login_ticket"), getCookieByName("account_id")), getHeaders());
         if (!"OK".equals(result.get("message"))) {
-            LoggerFactory.getInstance().info("login_ticket已失效,请重新登录获取");
+            log.info("login_ticket已失效,请重新登录获取");
             throw new Exception("login_ticket已失效,请重新登录获取");
         }
         return (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("token");

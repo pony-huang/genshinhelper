@@ -1,6 +1,8 @@
 package org.ponking.gih.sign;
 
 import lombok.SneakyThrows;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ponking.gih.push.MessagePush;
 import org.ponking.gih.push.ServerChanMessagePush;
 import org.ponking.gih.push.WeixinCPMessagePush;
@@ -9,13 +11,15 @@ import org.ponking.gih.sign.gs.GenShinSignMiHoYo;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.sign.gs.MiHoYoConfig;
 import org.ponking.gih.sign.gs.MiHoYoSignMiHoYo;
-import org.ponking.gih.util.log.LoggerFactory;
+
 
 /**
  * @Author ponking
  * @Date 2021/5/31 15:54
  */
 public class DailyTask implements Runnable {
+
+    private static final Logger log = LogManager.getLogger(DailyTask.class);
 
     public GenShinSignMiHoYo genShinSign;
 
@@ -68,26 +72,18 @@ public class DailyTask implements Runnable {
     }
 
     public void doDailyTask() {
+        if (genShinSign != null) {
+            genShinSign.sign();
+        }
         if (miHoYoSign != null) {
             try {
-                miHoYoSign.doSign();
+                miHoYoSign.doSingleSign();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if (genShinSign != null) {
-            genShinSign.sign();
+        if (pushed && messagePush != null) {
+            messagePush.sendMessage("原神签到", "");
         }
-        if (isPushed() && getMessagePush() != null) {
-            getMessagePush().sendMessage("原神签到", LoggerFactory.getInstance().getCurThreadLog());
-        }
-    }
-
-    public MessagePush getMessagePush() {
-        return messagePush;
-    }
-
-    public boolean isPushed() {
-        return pushed;
     }
 }

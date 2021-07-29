@@ -26,6 +26,8 @@ public class GenshinHelperProperties implements Serializable {
 
     private List<Account> account;
 
+    private String cron;
+
 
     @Data
     public static class Account {

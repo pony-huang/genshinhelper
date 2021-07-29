@@ -38,7 +38,7 @@
    **start.sh:**
    ```shell
    #!/bin/bash
-   java -jar -Dponking.gen.users=true GENSHIN_HELPER.jar genshin-helper.yaml  >> /home/log/genshin-helper.log
+   java -jar -Dponking.gen.users=true GENSHIN_HELPER.jar config.yaml  >> /home/log/genshin-helper.log
    # 注意cookies中含有等特殊字符,需要加上""
    ```
 
@@ -60,7 +60,7 @@
    **start.sh:**
    ```shell
    #!/bin/bash
-   java -jar GENSHIN_HELPER.jar genshin-helper.yaml  >> /home/log/genshin-helper.log
+   java -jar GENSHIN_HELPER.jar config.yaml  >> /home/log/genshin-helper.log
    # 注意cookies中含有等特殊字符,需要加上""
    ```
 
@@ -123,5 +123,3 @@
 
 # 感谢
 - [genshin-auto-login](https://github.com/Viole403/genshin-auto-login)
-
-- [BILIBILI-HELPER](https://github.com/JunzhouLiu/BILIBILI-HELPER)

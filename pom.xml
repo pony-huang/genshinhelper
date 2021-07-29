@@ -4,13 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>org.ponking</groupId>
     <artifactId>genshin-helper</artifactId>
     <version>2.2.1</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <package.name>${project.artifactId}-${project.version}</package.name>
+        <boot.main>org.ponking.gih.SignMain</boot.main>
     </properties>
 
 
@@ -44,6 +46,11 @@
             <version>2.13.3</version>
         </dependency>
         <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.3.4</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
@@ -59,13 +66,72 @@
             <artifactId>lombok</artifactId>
             <version>1.18.16</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.3.2</version>
+        </dependency>
 
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>simple</id>
+            <properties>
+                <!--传递给脚本的参数值-->
+                <activeProfile>simple</activeProfile>
+                <package-name>${package.name}</package-name>
+                <boot-main>${boot.main}</boot-main>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
+
     <build>
-        <finalName>GENSHIN_HELPER-${project.version}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources/${activeProfile}</directory>
+            </resource>
+        </resources>
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>${boot.main}</mainClass>
+                        </manifest>
+                    </archive>
+                    <!--打包排除项-->
+                    <excludes>
+                        <exclude>genshin-gen.properties</exclude>
+                        <exclude>genshin-helper.json</exclude>
+                        <exclude>genshin-helper.yaml</exclude>
+                        <exclude>genshin-users.yaml</exclude>
+                        <exclude>genshin-helper-auto.yaml</exclude>
+                        <exclude>weixinwork.properties</exclude>
+                    </excludes>
+                </configuration>
+                <!--                <executions>-->
+                <!--                    <execution>-->
+                <!--                        <id>make-a-jar</id>-->
+                <!--                        <phase>compile</phase>-->
+                <!--                        <goals>-->
+                <!--                            <goal>jar</goal>-->
+                <!--                        </goals>-->
+                <!--                    </execution>-->
+                <!--                </executions>-->
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -78,26 +144,21 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.2.0</version>
                 <configuration>
-                    <appendAssemblyId>true</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>${project.basedir}/src/main/assembly/assembly.xml</descriptor>
+                    </descriptors>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>org.ponking.gih.SignMain</mainClass>
+                            <mainClass>${boot.main}</mainClass>
                         </manifest>
                     </archive>
-                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
@@ -108,6 +169,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
             </plugin>
 
         </plugins>

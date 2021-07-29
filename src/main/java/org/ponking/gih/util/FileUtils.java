@@ -1,7 +1,7 @@
 package org.ponking.gih.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
-import org.ponking.gih.util.log.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -13,21 +13,18 @@ import java.util.Map;
  * @Author ponking
  * @Date 2021/5/7 13:13
  */
+@Slf4j
 public class FileUtils {
 
     private FileUtils() {
     }
 
-    public static String loadDaily() {
-        if (!LoggerFactory.isFlag()) {
-            return LoggerFactory.getInstance().getCurThreadLog();
-        }
-        return loadDailyFile();
+    public static String loadDaily(String path) {
+        return loadDailyFile(path);
     }
 
 
-    public static String loadDailyFile() {
-        String path = System.getProperties().get("user.dir") + File.separator + "logs" + File.separator + "daily.log";
+    public static String loadDailyFile(String path) {
         FileInputStream fis = null;
         String log = "";
         try {
@@ -68,7 +65,7 @@ public class FileUtils {
                 throw new RuntimeException("文件已存在:" + outFile.getPath());
             }
 
-            GenshinHelperProperties pro = loadSettingYaml(fileName);
+            GenshinHelperProperties pro = loadConfig(fileName);
 
             for (GenshinHelperProperties.Account account : pro.getAccount()) {
                 String cookie = account.getCookie();
@@ -89,13 +86,13 @@ public class FileUtils {
         }
     }
 
-    public static GenshinHelperProperties loadSettingYaml(String fileName) throws FileNotFoundException {
-        if ("genshin-helper.yaml".equals(fileName) || "genshin-helper-auto.yaml".equals(fileName)) {
+    public static GenshinHelperProperties loadConfig(String fileName) throws FileNotFoundException {
+        if ("genshin-helper.yaml".equals(fileName) || "genshin-helper-auto.yaml".equals(fileName) || "config.yaml".equals(fileName)) {
             fileName = System.getProperty("user.dir") + File.separator + fileName;
         }
         File file = new File(fileName);
         if (!file.exists()) {
-            throw new FileNotFoundException("文件已存在：" + fileName);
+            throw new FileNotFoundException("文件不已存在：" + fileName);
         }
         InputStream is = new FileInputStream(file);
         Yaml yaml = new Yaml(new Constructor(GenshinHelperProperties.class));
