@@ -14,8 +14,8 @@ import org.ponking.gih.sign.gs.MiHoYoSignMiHoYo;
 import org.ponking.gih.util.FileUtils;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -34,6 +34,8 @@ public class DailyTask implements Runnable {
 
     public boolean pushed = false; // 是否推送日志
 
+    public String workDir; // 工作目录
+
 
     /**
      * @param mode       推送消息方式
@@ -45,6 +47,10 @@ public class DailyTask implements Runnable {
      */
     public DailyTask(String mode, String sckey, String corpid, String corpsecret, String agentid,
                      GenshinHelperProperties.Account account) {
+        // 默认目录,因为云腾讯函数，只能在/temp有读取日志权限，故手动设置腾讯云函数使用/temp
+        String baseDir = System.getProperty("user.dir");
+        this.workDir = baseDir + File.separator + "logs";
+
         if (mode == null) {
             genShinSign = new GenShinSignMiHoYo(account.getCookie());
             if (account.getStuid() != null && account.getStoken() != null) {
@@ -77,21 +83,26 @@ public class DailyTask implements Runnable {
     }
 
     public void doDailyTask() {
-        log.info("开始执行时间,{}", LocalDateTime.now());
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        log.info("开始执行时间 {}", dtf.format(LocalDateTime.now()));
         if (miHoYoSign != null) {
             try {
-                miHoYoSign.doSampleSign();
+                miHoYoSign.doSingleThreadSign();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         if (genShinSign != null) {
-            genShinSign.sign();
+            genShinSign.doSign();
         }
         if (pushed && messagePush != null) {
-            String baseDir = System.getProperty("user.dir");
-            String path = baseDir + File.separator + "logs" + File.separator + Thread.currentThread().getName() + ".log";
-            messagePush.sendMessage("原神签到", FileUtils.loadDaily(path));
+
+            String fileName = Thread.currentThread().getName() + ".log";
+            messagePush.sendMessage("原神签到", FileUtils.loadDaily(this.workDir + File.separator + fileName));
         }
+    }
+
+    public void setWorkDir(String workDir) {
+        this.workDir = workDir;
     }
 }

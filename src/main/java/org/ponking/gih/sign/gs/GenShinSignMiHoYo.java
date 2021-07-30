@@ -33,7 +33,11 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
 
     @Override
     public void doSign() {
+        log.info("原神福利签到开始");
+        String uid = getUid();
         doSign(uid);
+        hubSign();
+        log.info("原神福利签到完成");
     }
 
     /**
@@ -54,21 +58,18 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
         }
     }
 
-    public void sign() {
-        log.info("原神福利签到开始");
-        String uid = getUid();
-        setUid(uid);
-        isSigned();
-        doSign();
-        log.info("原神福利签到完成");
-    }
-
+    /**
+     * 获取uid
+     *
+     * @return
+     */
     public String getUid() {
         JSONObject result = HttpUtils.doGet(MiHoYoConfig.ROLE_URL, getBasicHeaders());
         String uid = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("game_uid");
         String nickname = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("nickname");
         log.info("获取用户UID：{}", uid);
         log.info("当前用户名称：{}", nickname);
+        setUid(uid);
         return uid;
     }
 
@@ -89,11 +90,17 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
         return awards.get(day - 1);
     }
 
-    public boolean isSigned() {
-        return isSigned(uid);
+    public boolean hubSign() {
+        return hubSign(uid);
     }
 
-    public boolean isSigned(String uid) {
+    /**
+     * 社区签到并查询当天奖励
+     *
+     * @param uid
+     * @return
+     */
+    public boolean hubSign(String uid) {
         Map<String, Object> data = new HashMap<>();
         data.put("act_id", MiHoYoConfig.ACT_ID);
         data.put("region", MiHoYoConfig.REGION);
@@ -107,7 +114,7 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
         Award award = getAwardInfo(day);
 
         log.info("{}月已签到{}天", time.getMonth().getValue(), totalSignDay);
-        log.info("今天{}签到可获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
+        log.info("{}签到获取{}{}", signInfoResult.getJSONObject("data").get("today"), award.getCnt(), award.getName());
         return isSign;
     }
 

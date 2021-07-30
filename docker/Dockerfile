@@ -1,4 +1,0 @@
-FROM openjdk:8-jre
-MAINTAINER PONKING
-COPY GENSHIN_HELPER.jar GENSHIN_HELPER.jar
-ENTRYPOINT ["java","-Dgslog=true","-jar","GENSHIN_HELPER.jar"]

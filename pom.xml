@@ -78,14 +78,34 @@
         <profile>
             <id>simple</id>
             <properties>
-                <!--传递给脚本的参数值-->
                 <activeProfile>simple</activeProfile>
                 <package-name>${package.name}</package-name>
                 <boot-main>${boot.main}</boot-main>
+                <assembly.name>simple.xml</assembly.name>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+        </profile>
+        <profile>
+            <id>quartz</id>
+            <properties>
+                <!--传递给脚本的参数值-->
+                <activeProfile>quartz</activeProfile>
+                <package-name>${package.name}</package-name>
+                <boot-main>${boot.main}</boot-main>
+                <assembly.name>quartz.xml</assembly.name>
+            </properties>
+        </profile>
+        <profile>
+            <id>tencent</id>
+            <properties>
+                <!--传递给脚本的参数值-->
+                <activeProfile>tencent</activeProfile>
+                <package-name>${package.name}</package-name>
+                <boot-main>${boot.main}</boot-main>
+                <assembly.name>tencent.xml</assembly.name>
+            </properties>
         </profile>
     </profiles>
 
@@ -148,7 +168,7 @@
                 <version>3.2.0</version>
                 <configuration>
                     <descriptors>
-                        <descriptor>${project.basedir}/src/main/assembly/assembly.xml</descriptor>
+                        <descriptor>${project.basedir}/src/main/assembly/${assembly.name}</descriptor>
                     </descriptors>
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptorRefs>

@@ -3,6 +3,7 @@ package org.ponking.gih;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.ponking.gih.sign.DailyTask;
+import org.ponking.gih.sign.GenTaskThreadFactory;
 import org.ponking.gih.sign.SignJob;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.util.FileUtils;
@@ -25,24 +26,49 @@ import java.util.concurrent.TimeUnit;
 public class SignMain {
 
 
-    /**
-     * @param args
-     * @throws Exception
-     */
     public static void main(String[] args) throws Exception {
-        quartzMainHandler(args);
-
+//        quartzMainHandler(args);
+        simpleMainHandler(args);
     }
 
+    /**
+     * quartz执行
+     *
+     * @param args
+     * @throws FileNotFoundException
+     * @throws SchedulerException
+     */
     public static void quartzMainHandler(String[] args) throws FileNotFoundException, SchedulerException {
         String baseDir = System.getProperty("user.dir");
-        GenshinHelperProperties properties = FileUtils.loadConfig(baseDir + File.separator + "conf"+File.separator+"config.yaml");
-        doTask(createDailyTasks(properties),properties.getCron());
+        GenshinHelperProperties properties = FileUtils.loadConfig(baseDir + File.separator + "conf" + File.separator + "config.yaml");
+        createQuartzScheduler(createDailyTasks(properties), properties.getCron());
     }
 
     public static GenshinHelperProperties properties(String[] args) throws FileNotFoundException, SchedulerException {
         String baseDir = System.getProperty("user.dir");
-        return FileUtils.loadConfig(baseDir + File.separator + "conf"+File.separator+"config.yaml");
+        return FileUtils.loadConfig(baseDir + File.separator + "conf" + File.separator + "config.yaml");
+    }
+
+
+    /**
+     * 简单执行，可配合Linux cron
+     *
+     * @throws Exception
+     */
+    public static void simpleMainHandler(String[] args) throws Exception {
+        String baseDir = System.getProperty("user.dir");
+        GenshinHelperProperties properties = FileUtils.loadConfig(baseDir + File.separator + "conf" + File.separator + "config.yaml");
+        List<DailyTask> tasks = createDailyTasks(properties);
+        ThreadPoolExecutor executor =
+                new ThreadPoolExecutor(3, 10, 60,
+                        TimeUnit.SECONDS,
+                        new LinkedBlockingDeque<>(10),
+                        new GenTaskThreadFactory(),
+                        new ThreadPoolExecutor.AbortPolicy());
+        for (DailyTask task : tasks) {
+            executor.execute(task);
+        }
+        executor.shutdown();
     }
 
     /**
@@ -61,14 +87,23 @@ public class SignMain {
         ThreadPoolExecutor executor =
                 new ThreadPoolExecutor(3, 10, 60,
                         TimeUnit.SECONDS,
-                        new LinkedBlockingDeque<>(10), new ThreadPoolExecutor.AbortPolicy());
+                        new LinkedBlockingDeque<>(10),
+                        new GenTaskThreadFactory(),
+                        new ThreadPoolExecutor.AbortPolicy());
         for (DailyTask task : tasks) {
+            task.setWorkDir("/temp/logs");
             executor.execute(task);
         }
         executor.shutdown();
     }
 
-    public static List<DailyTask> createDailyTasks(GenshinHelperProperties properties){
+    /**
+     * 创建任务
+     *
+     * @param properties
+     * @return
+     */
+    public static List<DailyTask> createDailyTasks(GenshinHelperProperties properties) {
         List<DailyTask> tasks = new ArrayList<>();
         if (properties != null) {
             for (GenshinHelperProperties.Account account : properties.getAccount()) {
@@ -80,7 +115,14 @@ public class SignMain {
         return tasks;
     }
 
-    public static void doTask(List<DailyTask> tasks,String cron) throws SchedulerException {
+    /**
+     * 创建scheduler，并启动
+     *
+     * @param tasks
+     * @param cron
+     * @throws SchedulerException
+     */
+    public static void createQuartzScheduler(List<DailyTask> tasks, String cron) throws SchedulerException {
         //创建一个scheduler
         Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
 
@@ -95,7 +137,7 @@ public class SignMain {
         job.getJobDataMap().put("tasks", tasks);
 
         //注册trigger并启动scheduler
-        scheduler.scheduleJob(job,trigger);
+        scheduler.scheduleJob(job, trigger);
         scheduler.start();
     }
 }

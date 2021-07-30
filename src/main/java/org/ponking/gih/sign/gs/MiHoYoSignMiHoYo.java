@@ -80,7 +80,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
         genShinHomePosts.addAll(homePosts);
-        log.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
+        log.info("获取社区帖子数: {}", genShinHomePosts.size());
         //执行任务
         Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, genShinHomePosts));
         Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, genShinHomePosts));
@@ -94,14 +94,14 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
     }
 
 
-    public void doSingleSign() throws Exception {
+    public void doSingleThreadSign() throws Exception {
 
         log.info("社区签到任务开始");
         sign();
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
         genShinHomePosts.addAll(homePosts);
-        log.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
+        log.info("获取社区帖子数: {}", genShinHomePosts.size());
         //执行任务
         Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM, genShinHomePosts);
         Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM, genShinHomePosts);
@@ -128,7 +128,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
         genShinHomePosts.addAll(homePosts);
-        log.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
+        log.info("获取社区帖子数: {}", genShinHomePosts.size());
         //执行任务
         Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM, genShinHomePosts);
         Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM, genShinHomePosts);
