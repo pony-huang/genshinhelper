@@ -74,7 +74,6 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
     @Override
     public void doSign() throws Exception {
-
         log.info("社区签到任务开始");
         sign();
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
@@ -95,8 +94,6 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
 
     public void doSingleThreadSign() throws Exception {
-
-        log.info("社区签到任务开始");
         sign();
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
@@ -111,33 +108,13 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         FutureTask<Integer> upf = new FutureTask<Integer>(upVotePost);
         FutureTask<Integer> spf = new FutureTask<Integer>(sharePost);
 
-        new Thread(vpf).start();
-        new Thread(upf).start();
-        new Thread(spf).start();
-        countDownLatch.countDown();
-
-//        Thread.sleep(10_000);
+        List<FutureTask<Integer>> fts = Arrays.asList(vpf, upf, spf);
+        for (FutureTask<Integer> ft : fts) {
+            new Thread(ft).start();
+        }
+        countDownLatch.await();
         //打印日志
         log.info("浏览帖子: {},点赞帖子: {},分享帖子: {}", vpf.get(), upf.get(), spf.get());
-    }
-
-    public void doSampleSign() throws Exception {
-
-        log.info("社区签到任务开始");
-        sign();
-        List<PostResult> genShinHomePosts = getGenShinHomePosts();
-        List<PostResult> homePosts = getPosts();
-        genShinHomePosts.addAll(homePosts);
-        log.info("获取社区帖子数: {}", genShinHomePosts.size());
-        //执行任务
-        Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM, genShinHomePosts);
-        Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM, genShinHomePosts);
-        Callable<Integer> upVotePost = createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts);
-
-
-//        Thread.sleep(10_000);
-        //打印日志
-        log.info("浏览帖子: {},点赞帖子: {},分享帖子: {}", viewPost.call(), upVotePost.call(), sharePost.call());
     }
 
     public Callable<Integer> createTask(Object obj, String methodName, int num, List<PostResult> posts) {
@@ -152,6 +129,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
     }
 
     public int doTask(Object obj, Method method, int num, List<PostResult> posts) {
+        countDownLatch.countDown();
         int sc = 0;
         // 保证每个浏览(点赞，分享)的帖子不重复
         HashSet<Object> set = new HashSet<>(num);

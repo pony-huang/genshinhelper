@@ -33,11 +33,9 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
 
     @Override
     public void doSign() {
-        log.info("原神福利签到开始");
         String uid = getUid();
         doSign(uid);
         hubSign();
-        log.info("原神福利签到完成");
     }
 
     /**
