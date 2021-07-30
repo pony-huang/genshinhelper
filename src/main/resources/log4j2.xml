@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="warn"
-               packages="com.hoperun.zhulongxiang.asnc_print_different_logfile">
+<Configuration status="warn" packages="org.ponking.gih">
     <Appenders>
-        <console name="console" target="system_out">
+        <console name="Console" target="SYSTEM_OUT">
             <patternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %m%n"/>
         </console>
         <Routing name="Routing">
@@ -11,22 +10,27 @@
                     <RollingFile name="logFile-${thread:threadName}"
                                  append="false"
                                  fileName="logs/${thread:threadName}.log"
-                                 filePattern="logs/${thread:threadName}-%d{MM-dd-yyyy}.log">
+                                 filePattern="logs/${thread:threadName}-%d{MM-dd-yyyy}.log.bak">
                         <PatternLayout pattern="%msg%n"/>
                         <!-- 设置每天晚上12点清除过期日志文件 -->
-                        <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+                        <CronTriggeringPolicy schedule="0 0 * * * ?"/>
+                        <DefaultRolloverStrategy>
+                            <Delete basePath="logs" maxDepth="2">
+                                <IfFileName glob="logs/*.log.bak"/>
+                                <IfLastModified age="1m"/>
+                            </Delete>
+                        </DefaultRolloverStrategy>
                         <Policies>
-                            <SizeBasedTriggeringPolicy size="5 MB"/>
-                            <TimeBasedTriggeringPolicy modulate="true" />
+                            <SizeBasedTriggeringPolicy size="1 MB"/>
                         </Policies>
-<!--                        <DefaultRolloverStrategy max="1"/>-->
+                        <DefaultRolloverStrategy max="3"/>
                     </RollingFile>
                 </Route>
             </Routes>
         </Routing>
         <Async name="async" bufferSize="1000" includeLocation="true">
             <AppenderRef ref="Routing"/>
-            <AppenderRef ref="console"/>
+            <AppenderRef ref="Console"/>
         </Async>
     </Appenders>
     <Loggers>

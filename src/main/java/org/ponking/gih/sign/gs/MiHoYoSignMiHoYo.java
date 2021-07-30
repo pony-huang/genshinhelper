@@ -46,6 +46,8 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
      */
     private final static int SHARE_NUM = 3;
 
+    private final CountDownLatch countDownLatch = new CountDownLatch(3);
+
     /**
      * 辣鸡服务器1v2学生机，常驻线程不会炸？
      */
@@ -94,7 +96,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
     public void doSingleSign() throws Exception {
 
-        log.info("doSingleSign 社区签到任务开始");
+        log.info("社区签到任务开始");
         sign();
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
@@ -112,12 +114,30 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         new Thread(vpf).start();
         new Thread(upf).start();
         new Thread(spf).start();
+        countDownLatch.countDown();
 
+//        Thread.sleep(10_000);
         //打印日志
-        log.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
-        log.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
-        log.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
-        log.info("doSingleSign 社区签到任务完成");
+        log.info("浏览帖子: {},点赞帖子: {},分享帖子: {}", vpf.get(), upf.get(), spf.get());
+    }
+
+    public void doSampleSign() throws Exception {
+
+        log.info("社区签到任务开始");
+        sign();
+        List<PostResult> genShinHomePosts = getGenShinHomePosts();
+        List<PostResult> homePosts = getPosts();
+        genShinHomePosts.addAll(homePosts);
+        log.info("获取旅行者社区帖子成功，总共帖子数: {}", genShinHomePosts.size());
+        //执行任务
+        Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM, genShinHomePosts);
+        Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM, genShinHomePosts);
+        Callable<Integer> upVotePost = createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts);
+
+
+//        Thread.sleep(10_000);
+        //打印日志
+        log.info("浏览帖子: {},点赞帖子: {},分享帖子: {}", viewPost.call(), upVotePost.call(), sharePost.call());
     }
 
     public Callable<Integer> createTask(Object obj, String methodName, int num, List<PostResult> posts) {

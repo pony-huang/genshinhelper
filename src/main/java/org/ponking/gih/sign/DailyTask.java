@@ -11,6 +11,11 @@ import org.ponking.gih.sign.gs.GenShinSignMiHoYo;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.sign.gs.MiHoYoConfig;
 import org.ponking.gih.sign.gs.MiHoYoSignMiHoYo;
+import org.ponking.gih.util.FileUtils;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
 
 
 /**
@@ -72,18 +77,21 @@ public class DailyTask implements Runnable {
     }
 
     public void doDailyTask() {
-        if (genShinSign != null) {
-            genShinSign.sign();
-        }
+        log.info("开始执行时间,{}", LocalDateTime.now());
         if (miHoYoSign != null) {
             try {
-                miHoYoSign.doSingleSign();
+                miHoYoSign.doSampleSign();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        if (genShinSign != null) {
+            genShinSign.sign();
+        }
         if (pushed && messagePush != null) {
-            messagePush.sendMessage("原神签到", "");
+            String baseDir = System.getProperty("user.dir");
+            String path = baseDir + File.separator + "logs" + File.separator + Thread.currentThread().getName() + ".log";
+            messagePush.sendMessage("原神签到", FileUtils.loadDaily(path));
         }
     }
 }
