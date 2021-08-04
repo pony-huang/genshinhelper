@@ -27,7 +27,6 @@ public class SignMain {
 
 
     public static void main(String[] args) throws Exception {
-//        quartzMainHandler(args);
         simpleMainHandler(args);
     }
 
@@ -91,7 +90,7 @@ public class SignMain {
                         new GenTaskThreadFactory(),
                         new ThreadPoolExecutor.AbortPolicy());
         for (DailyTask task : tasks) {
-            task.setWorkDir("/temp/logs");
+            task.setWorkDir("/tmp/logs");
             executor.execute(task);
         }
         executor.shutdown();

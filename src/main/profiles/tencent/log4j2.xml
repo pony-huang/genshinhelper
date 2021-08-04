@@ -9,8 +9,8 @@
                 <Route>
                     <RollingFile name="logFile-${thread:threadName}"
                                  append="false"
-                                 fileName="/temp/logs/${thread:threadName}.log"
-                                 filePattern="/temp/logs/${thread:threadName}-%d{MM-dd-yyyy}.log.bak">
+                                 fileName="/tmp/logs/${thread:threadName}.log"
+                                 filePattern="/tmp/logs/${thread:threadName}-%d{MM-dd-yyyy}.log.bak">
                         <PatternLayout pattern="%msg%n"/>
                         <!-- 设置每天晚上12点清除过期日志文件 -->
                         <CronTriggeringPolicy schedule="0 0 * * * ?"/>

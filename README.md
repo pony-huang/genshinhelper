@@ -1,16 +1,16 @@
 # 工具简介
 
+> 你居然发现新大陆 😀 👍👏
+
 米哈游MiHoYo原神签到福利、社区每日签到。
 
 仓库地址：https://github.com/PonKing66/genshi-helper
 
-> （最新版本（2.0.x）改动较大，建议重新拉取）
+# 日志推送方式
 
-## 日志推送方式
+## [Server酱](http://sc.ftqq.com/9.version)
 
-### [Server酱](http://sc.ftqq.com/9.version)
-
-### 微信企业个人推送（推荐）
+## 微信企业个人推送（推荐）
 
 ![](./images/img_2.png)
 
@@ -24,88 +24,69 @@
 
 ## 获取cookie
 
-- 登录 https://bbs.mihoyo.com/ys/, 如果已经登录，需要退出再重新登录。
-- 按下F12并复制cookie
+1. 登录 https://bbs.mihoyo.com/ys/ （如果已经登录，需要退出再重新登录）。
+2. 按下F12并复制cookie
+
+> 注意：目前web上cookie不能获取login_ticket（可能要抓APP）,config.yaml中的stuid,stoken可不填
 
 ![](./images/img_1.png)
 
-## Linux Crontab定时任务执行
+### Linux定时任务执行
 
-30 10 * * * sh /home/start.sh
+1. 下载
 
-1. 方法一（推荐）
+```git
+git clone https://github.com/PonKing66/genshi-helper
+cd genshi-helper
+mvn clean package -Psimple
+```
 
-   **start.sh:**
-   ```shell
-   #!/bin/bash
-   java -jar -Dponking.gen.users=true GENSHIN_HELPER.jar config.yaml  >> /home/log/genshin-helper.log
-   # 注意cookies中含有等特殊字符,需要加上""
-   ```
+2. 解压与执行
 
-   genshin-helper.yaml：
+```shell
+tar -zxvf genshin-helper-{最新版本}.tar.gz /home/poking
+cd /home/ponking/genshin-helper-2.2.1-simple
+```
 
-   ```yaml
-   mode: weixincp # 设置企业微信推送（serverChan:server酱,weixincp：企业微信）
-   sckey: # 仅需填写mode相关配置即可，如填写mode为weixincp，那么sckey不用填写
-   corpid: xxxxx
-   corpsecret: xxxxx
-   agentid: xxxxx
-   account:
-      - cookie: cookie1
-      - cookie: cookie2
-   ```
+文件目录如下
 
-2. 方法二
+```
+genshin-helper-2.2.1-simple
+├── bin
+│   └── startup.sh
+├── conf
+│   └── config.yaml
+├── genshin-helper-2.2.1.jar
+└── lib
+```
 
-   **start.sh:**
-   ```shell
-   #!/bin/bash
-   java -jar GENSHIN_HELPER.jar config.yaml  >> /home/log/genshin-helper.log
-   # 注意cookies中含有等特殊字符,需要加上""
-   ```
+3. 配置config.yaml
 
-   genshin-helper.yaml：
+```yaml
+mode: weixincp # 设置企业微信推送（serverChan:server酱,weixincp：企业微信）
+sckey: # 仅需填写mode相关配置即可，如填写mode为weixincp，那么sckey不用填写
+corpid: xxxxx
+corpsecret: xxxxx
+agentid: xxxxx
+cron: '0/30 * * * * ?' # 无视，可不填，填不填都无所谓
+account:
+  - cookie: xxxx
+    stuid: xxxx
+    stoken: xxxx
+    toUser: xxxx
+  - cookie: xxxx
+    stuid: xxxx
+    stoken: xxxx
+    toUser: xxxx
+```
 
-   ```yaml
-   mode: weixincp # 设置企业微信推送（serverChan:server酱,weixincp：企业微信）
-   sckey: # 仅需填写mode相关配置即可，如填写mode为weixincp，那么sckey不用填写
-   corpid: xxxxx
-   corpsecret: xxxxx
-   agentid: xxxxx
-   account:
-      - cookie: cookie1
-        stuid: stuid1
-        stoken: stoken1
-      - cookie: cookie2
-        stuid: stuid2
-        stoken: stoken2
-   ```
-3. 方法三
-   **start.sh:**
+4. 配置crontab
 
-   ```shell
-   #!/bin/bash
-   java -jar /home/GENSHIN-HELPER.jar "${你的cookie}" "${你的stuid}" "${你的stoken}"  >> /home/log/genshin-helper.log
-   # 注意cookies中含有等特殊字符,需要加上""
-   ```
-   或者添加server酱推送
-   ```shell
-   #!/bin/bash
-   java -jar /home/GENSHIN-HELPER.jar "${你的cookie}" "${你的stuid}" "${你的stoken}" "${你的sckey}">> /home/log/genshin-helper.log
-   # 注意cookies中含有等特殊字符,需要加上""
-   ```
+```shell
+30 10 * * *  /bin/bash  //home/ponking/genshin-helper-2.2.1-simple/bin/startup.sh
+```
 
-   或者添加微信企业推送
-   ```shell
-   #!/bin/bash
-   java -jar /home/GENSHIN-HELPER.jar "${你的cookie}" "${你的stuid}" "${你的stoken}" "${你的企业ID}" "${你的当前应用Secret}" "${你的当前应用AgentId}" >> /home/log/genshin-helper.log
-   # 注意cookies中含有等特殊字符,需要加上""
-   ```
-
-**获取stoken,stuid方式：**
-使用GetstokenUtils工具类获取。
-
-## 腾讯云函数执行
+### 腾讯云函数执行
 
 [文档](./doc/腾讯云函数.md)
 
@@ -117,9 +98,6 @@
 - 支持多账号获取cookie
 - 支持多账号签到
 
-# 已知问题
-
-- 部分贴子浏览签到失效
-
 # 感谢
+
 - [genshin-auto-login](https://github.com/Viole403/genshin-auto-login)
