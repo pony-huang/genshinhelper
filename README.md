@@ -45,7 +45,7 @@ mvn clean package -Psimple
 
 ```shell
 tar -zxvf genshin-helper-{最新版本}.tar.gz /home/poking
-cd /home/ponking/genshin-helper-2.2.1-simple
+cd /home/ponking/genshin-helper-{最新版本}-simple
 ```
 
 文件目录如下
