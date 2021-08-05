@@ -38,6 +38,7 @@
 ```git
 git clone https://github.com/PonKing66/genshi-helper
 cd genshi-helper
+git checkout build
 mvn clean package -Psimple
 ```
 
