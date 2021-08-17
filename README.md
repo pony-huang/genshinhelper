@@ -37,7 +37,7 @@
 
 ```git
 git clone https://github.com/PonKing66/genshi-helper
-cd genshi-helper
+cd genshin-helper
 git checkout build
 mvn clean package -Psimple
 ```
@@ -84,7 +84,7 @@ account:
 4. 配置crontab
 
 ```shell
-30 10 * * *  /bin/bash  //home/ponking/genshin-helper-2.2.1-simple/bin/startup.sh
+30 10 * * *  /bin/bash  /home/ponking/genshin-helper-{最新版本}-simple/bin/startup.sh
 ```
 
 ### 腾讯云函数执行
