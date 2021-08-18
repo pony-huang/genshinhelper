@@ -66,11 +66,6 @@
             <artifactId>lombok</artifactId>
             <version>1.18.16</version>
         </dependency>
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-            <version>2.3.2</version>
-        </dependency>
 
     </dependencies>
 
@@ -86,16 +81,6 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-        </profile>
-        <profile>
-            <id>quartz</id>
-            <properties>
-                <!--传递给脚本的参数值-->
-                <activeProfile>quartz</activeProfile>
-                <package-name>${package.name}</package-name>
-                <boot-main>${boot.main}</boot-main>
-                <assembly.name>quartz.xml</assembly.name>
-            </properties>
         </profile>
         <profile>
             <id>tencent</id>

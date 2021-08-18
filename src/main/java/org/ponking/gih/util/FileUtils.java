@@ -1,6 +1,5 @@
 package org.ponking.gih.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -13,8 +12,8 @@ import java.util.Map;
  * @Author ponking
  * @Date 2021/5/7 13:13
  */
-@Slf4j
 public class FileUtils {
+
 
     private FileUtils() {
     }

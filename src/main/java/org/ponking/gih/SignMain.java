@@ -1,14 +1,12 @@
 package org.ponking.gih;
 
 import com.alibaba.fastjson.JSON;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ponking.gih.sign.DailyTask;
 import org.ponking.gih.sign.GenTaskThreadFactory;
-import org.ponking.gih.sign.SignJob;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.util.FileUtils;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,28 +20,15 @@ import java.util.concurrent.TimeUnit;
  * @Author ponking
  * @Date 2021/5/7 10:09
  */
-@Slf4j
 public class SignMain {
 
+    private static Logger log = LogManager.getLogger(SignMain.class.getName());
 
     public static void main(String[] args) throws Exception {
         simpleMainHandler(args);
     }
 
-    /**
-     * quartz执行
-     *
-     * @param args
-     * @throws FileNotFoundException
-     * @throws SchedulerException
-     */
-    public static void quartzMainHandler(String[] args) throws FileNotFoundException, SchedulerException {
-        String baseDir = System.getProperty("user.dir");
-        GenshinHelperProperties properties = FileUtils.loadConfig(baseDir + File.separator + "conf" + File.separator + "config.yaml");
-        createQuartzScheduler(createDailyTasks(properties), properties.getCron());
-    }
-
-    public static GenshinHelperProperties properties(String[] args) throws FileNotFoundException, SchedulerException {
+    public static GenshinHelperProperties properties(String[] args) throws FileNotFoundException {
         String baseDir = System.getProperty("user.dir");
         return FileUtils.loadConfig(baseDir + File.separator + "conf" + File.separator + "config.yaml");
     }
@@ -114,29 +99,4 @@ public class SignMain {
         return tasks;
     }
 
-    /**
-     * 创建scheduler，并启动
-     *
-     * @param tasks
-     * @param cron
-     * @throws SchedulerException
-     */
-    public static void createQuartzScheduler(List<DailyTask> tasks, String cron) throws SchedulerException {
-        //创建一个scheduler
-        Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-
-        //创建一个Trigger
-        Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity("signTrigger", "signGroup")
-                .withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
-
-        //创建一个job
-        JobDetail job = JobBuilder.newJob(SignJob.class)
-                .withIdentity("signJobDetail", "signGroup").build();
-        job.getJobDataMap().put("tasks", tasks);
-
-        //注册trigger并启动scheduler
-        scheduler.scheduleJob(job, trigger);
-        scheduler.start();
-    }
 }
