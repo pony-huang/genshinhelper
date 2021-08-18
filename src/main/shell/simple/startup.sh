@@ -31,6 +31,7 @@ export SERVER="${package-name}" # 脚本自动注入
 
 JAVA_OPT="${JAVA_OPT} -Xms256m -Xmx256m -Xmn128m"
 JAVA_OPT="${JAVA_OPT} -jar ${BASE_DIR}/${SERVER}.jar"
+JAVA_OPT="${JAVA_OPT} --logging.config=conf/log4j2.xml"
 JAVA_OPT="${JAVA_OPT} ${JAVA_OPT_EXT}"
 
 if [ ! -d "${BASE_DIR}/logs" ]; then

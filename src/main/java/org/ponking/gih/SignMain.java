@@ -3,6 +3,7 @@ package org.ponking.gih;
 import com.alibaba.fastjson.JSON;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ponking.gih.sign.Constant;
 import org.ponking.gih.sign.DailyTask;
 import org.ponking.gih.sign.GenTaskThreadFactory;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SignMain {
 
-    private static Logger log = LogManager.getLogger(SignMain.class.getName());
+    public static Logger log = LogManager.getLogger(SignMain.class.getName());
 
     public static void main(String[] args) throws Exception {
         simpleMainHandler(args);
@@ -53,6 +55,25 @@ public class SignMain {
             executor.execute(task);
         }
         executor.shutdown();
+    }
+
+    /**
+     * 简单执行，可配合Linux cron
+     *
+     * @throws Exception
+     */
+    public static void simpleMainHandlerByThread(String[] args) throws Exception {
+        String baseDir = System.getProperty("user.dir");
+        GenshinHelperProperties properties = FileUtils.loadConfig(baseDir + File.separator + "conf" + File.separator + "config.yaml");
+        List<DailyTask> tasks = createDailyTasks(properties);
+        CountDownLatch countDownLatch = new CountDownLatch(tasks.size());
+        for (int i = 0; i < tasks.size(); i++) {
+            final int index = i;
+            new Thread(() -> {
+                tasks.get(index).doDailyTask(countDownLatch);
+            }, Constant.GENSHIN_THREAD_PREFIX + i).start();
+        }
+        countDownLatch.await();
     }
 
     /**

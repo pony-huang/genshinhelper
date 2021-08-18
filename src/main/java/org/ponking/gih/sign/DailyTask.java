@@ -16,6 +16,7 @@ import org.ponking.gih.util.FileUtils;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -100,6 +101,27 @@ public class DailyTask implements Runnable {
             String fileName = Thread.currentThread().getName() + ".log";
             messagePush.sendMessage("原神签到", FileUtils.loadDaily(this.workDir + File.separator + fileName));
         }
+    }
+
+    public void doDailyTask(CountDownLatch countDownLatch) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        log.info("开始执行时间 {}", dtf.format(LocalDateTime.now()));
+        if (miHoYoSign != null) {
+            try {
+                miHoYoSign.doSingleThreadSign();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (genShinSign != null) {
+            genShinSign.doSign();
+        }
+        if (pushed && messagePush != null) {
+
+            String fileName = Thread.currentThread().getName() + ".log";
+            messagePush.sendMessage("原神签到", FileUtils.loadDaily(this.workDir + File.separator + fileName));
+        }
+        countDownLatch.countDown();
     }
 
     public void setWorkDir(String workDir) {

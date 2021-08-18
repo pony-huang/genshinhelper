@@ -17,7 +17,7 @@ public class GenTaskThreadFactory implements ThreadFactory {
         SecurityManager s = System.getSecurityManager();
         group = (s != null) ? s.getThreadGroup() :
                 Thread.currentThread().getThreadGroup();
-        namePrefix = "quartz-genshin-thread-";
+        namePrefix = Constant.GENSHIN_THREAD_PREFIX;
 
     }
 
