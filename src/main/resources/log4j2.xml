@@ -9,17 +9,9 @@
                 <Route>
                     <RollingFile name="logFile-${thread:threadName}"
                                  append="false"
-                                 fileName="logs/${thread:threadName}.log"
-                                 filePattern="logs/${thread:threadName}-%d{MM-dd-yyyy}.log.bak">
+                                 fileName="/tmp/${thread:threadName}.log"
+                                 filePattern="/tmp/${thread:threadName}-%d{MM-dd-yyyy}.log.bak">
                         <PatternLayout pattern="%msg%n"/>
-                        <!-- 设置每天晚上12点清除过期日志文件 -->
-                        <CronTriggeringPolicy schedule="0 0 * * * ?"/>
-                        <DefaultRolloverStrategy>
-                            <Delete basePath="logs" maxDepth="2">
-                                <IfFileName glob="logs/*.log.bak"/>
-                                <IfLastModified age="1m"/>
-                            </Delete>
-                        </DefaultRolloverStrategy>
                         <Policies>
                             <SizeBasedTriggeringPolicy size="1 MB"/>
                         </Policies>

@@ -89,17 +89,15 @@ public class SignMain {
         }
         GenshinHelperProperties properties = JSON.parseObject(config, GenshinHelperProperties.class);
         List<DailyTask> tasks = createDailyTasks(properties);
-        ThreadPoolExecutor executor =
-                new ThreadPoolExecutor(3, 10, 60,
-                        TimeUnit.SECONDS,
-                        new LinkedBlockingDeque<>(10),
-                        new GenTaskThreadFactory(),
-                        new ThreadPoolExecutor.AbortPolicy());
-        for (DailyTask task : tasks) {
-            task.setWorkDir("/tmp/logs");
-            executor.execute(task);
+        CountDownLatch countDownLatch = new CountDownLatch(tasks.size());
+        for (int i = 0; i < tasks.size(); i++) {
+            final int index = i;
+            tasks.get(i).setWorkDir(Constant.GENSHIN_TENCENT_LOGS_PATH);
+            new Thread(() -> {
+                tasks.get(index).doDailyTask(countDownLatch);
+            }, Constant.GENSHIN_THREAD_PREFIX + i).start();
         }
-        executor.shutdown();
+        countDownLatch.await();
     }
 
     /**

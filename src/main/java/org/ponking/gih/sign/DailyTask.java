@@ -48,7 +48,7 @@ public class DailyTask implements Runnable {
      */
     public DailyTask(String mode, String sckey, String corpid, String corpsecret, String agentid,
                      GenshinHelperProperties.Account account) {
-        // 默认目录,因为云腾讯函数，只能在/temp有读取日志权限，故手动设置腾讯云函数使用/temp
+        // 默认目录,因为云腾讯函数，只能在/tmp有读取日志权限，故手动设置腾讯云函数使用/tmp
         String baseDir = System.getProperty("user.dir");
         this.workDir = baseDir + File.separator + "logs";
 
