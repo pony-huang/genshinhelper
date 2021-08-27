@@ -20,18 +20,15 @@ if [ -z "$JAVA_HOME" ]; then
   fi
 fi
 
-
 export JAVA_HOME
 export JAVA="$JAVA_HOME/bin/java"
 export BASE_DIR=`cd $(dirname $0)/..; pwd`
 export SERVER="${package-name}" # 脚本自动注入
-#===========================================================================================
-# JVM Configuration
-#===========================================================================================
 
-JAVA_OPT="${JAVA_OPT} -Xms256m -Xmx256m -Xmn128m"
+JAVA_OPT="${JAVA_OPT} -Xms128m -Xmx256m -Xmn128m"
+JAVA_OPT="${JAVA_OPT} -Dgenshin.logger=${BASE_DIR}/conf/log4j2.xml"
+JAVA_OPT="${JAVA_OPT} -Dgenshin.config=${BASE_DIR}/conf/config.yaml"
 JAVA_OPT="${JAVA_OPT} -jar ${BASE_DIR}/${SERVER}.jar"
-JAVA_OPT="${JAVA_OPT} --logging.config=conf/log4j2.xml"
 JAVA_OPT="${JAVA_OPT} ${JAVA_OPT_EXT}"
 
 if [ ! -d "${BASE_DIR}/logs" ]; then
