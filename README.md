@@ -88,12 +88,13 @@ account:
 30 10 * * *  /bin/bash  /home/ponking/genshin-helper-{最新版本}-simple/bin/startup.sh
 ```
 
-### 腾讯云函数执行
+### 腾讯云函数执行 （推荐）
 
 [文档](./doc/腾讯云函数.md)
 
 # 更新
 
+- 更新腾讯云函数支持日志推送
 - 添加腾讯云函数
 - 添加傻瓜式启动方式
 - 添加线程优化
