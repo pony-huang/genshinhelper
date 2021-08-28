@@ -15,8 +15,9 @@
 ![](./images/img_2.png)
 
 **新建微信企业教程：**
+[参考链接](https://www.88ksk.cn/blog/article/26.html)
 
-- 首先需要注册一个企业微信（https://work.weixin.qq.com/）。
+- 首先需要注册一个[企业微信](https://work.weixin.qq.com) 。
 - 进入管理后台，选择应用管理，然后选择创建应用。
 - 创建好后，得到 AgentId 和 Secret 两个值，再回到企业微信后台，选择我的企业，翻到最底下，得到企业ID
 
