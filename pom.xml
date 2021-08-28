@@ -66,64 +66,51 @@
 
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>simple</id>
-            <properties>
-                <activeProfile>simple</activeProfile>
-                <package-name>${package.name}</package-name>
-                <boot-main>${boot.main}</boot-main>
-                <assembly.name>simple.xml</assembly.name>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
-            <id>tencent</id>
-            <properties>
-                <!--传递给脚本的参数值-->
-                <activeProfile>tencent</activeProfile>
-                <package-name>${package.name}</package-name>
-                <boot-main>${boot.main}</boot-main>
-                <assembly.name>tencent.xml</assembly.name>
-            </properties>
-        </profile>
-    </profiles>
-
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/resources/${activeProfile}</directory>
+                <filtering>false</filtering>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>log4j2.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>genshin-gen.properties</exclude>
+                    <exclude>genshin-helper.json</exclude>
+                    <exclude>genshin-helper.yaml</exclude>
+                    <exclude>genshin-users.yaml</exclude>
+                    <exclude>genshin-helper-auto.yaml</exclude>
+                    <exclude>weixinwork.properties</exclude>
+                </excludes>
             </resource>
         </resources>
         <plugins>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <archive>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>${boot.main}</mainClass>
-                        </manifest>
-                    </archive>
-                    <!--打包排除项-->
-                    <excludes>
-                        <exclude>genshin-gen.properties</exclude>
-                        <exclude>genshin-helper.json</exclude>
-                        <exclude>genshin-helper.yaml</exclude>
-                        <exclude>genshin-users.yaml</exclude>
-                        <exclude>genshin-helper-auto.yaml</exclude>
-                        <exclude>weixinwork.properties</exclude>
-                    </excludes>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -148,6 +135,9 @@
                         <manifest>
                             <mainClass>${boot.main}</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Class-Path>.</Class-Path>
+                        </manifestEntries>
                     </archive>
                 </configuration>
                 <executions>

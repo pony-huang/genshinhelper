@@ -86,9 +86,6 @@ public class FileUtils {
     }
 
     public static GenshinHelperProperties loadConfig(String fileName) throws FileNotFoundException {
-        if ("genshin-helper.yaml".equals(fileName) || "genshin-helper-auto.yaml".equals(fileName) || "config.yaml".equals(fileName)) {
-            fileName = System.getProperty("user.dir") + File.separator + fileName;
-        }
         File file = new File(fileName);
         if (!file.exists()) {
             throw new FileNotFoundException("文件不已存在：" + fileName);
