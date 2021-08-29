@@ -5,11 +5,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ponking.gih.sign.Constant;
 import org.ponking.gih.sign.DailyTask;
+import org.ponking.gih.sign.GenTaskThreadFactory;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
+import org.ponking.gih.util.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * @Author ponking
@@ -17,11 +22,23 @@ import java.util.concurrent.CountDownLatch;
  */
 public class SignMain {
 
-    public static Logger log = LogManager.getLogger(SignMain.class.getName());
+    public static Logger log = null;
+
+
+    static {
+        // 默认执行环境腾讯云函数,用于日志配置，log4j2
+        System.setProperty(Constant.GENSHIN_ENV_LOG_PATH, Constant.ENV_TENCENT_LOG_PATH);
+        System.setProperty(Constant.GENSHIN_EXEC, "腾讯云函数");
+        log = LogManager.getLogger(SignMain.class.getName());
+    }
 
 
     public static void main(String[] args) throws Exception {
-        mainHandler(new KeyValueClass());
+        System.setProperty(Constant.GENSHIN_ENV_LOG_PATH, Constant.ENV_DEFAULT_LOG_PATH);
+        System.setProperty(Constant.GENSHIN_EXEC, System.getProperty("os.name"));
+        String config = getConfig(Constant.ENV_DEFAULT_CONFIG_PATH);
+        GenshinHelperProperties properties = FileUtils.loadConfig(config);
+        exec(properties);
     }
 
     /**
@@ -30,22 +47,43 @@ public class SignMain {
      * @throws Exception
      */
     public static void mainHandler(KeyValueClass keyValueClass) throws Exception {
-        String config = System.getProperty("config");
-        if (null == config) {
-            log.info("config配置为空!!!");
-            return;
-        }
+        String config = getConfig(Constant.ENV_TENCENT_CONFIG_PATH);
         GenshinHelperProperties properties = JSON.parseObject(config, GenshinHelperProperties.class);
+        exec(properties);
+    }
+
+    public static void exec(GenshinHelperProperties properties) throws Exception {
         List<DailyTask> tasks = createDailyTasks(properties);
-        CountDownLatch countDownLatch = new CountDownLatch(tasks.size());
-        for (int i = 0; i < tasks.size(); i++) {
-            final int index = i;
-            tasks.get(i).setWorkDir(Constant.GENSHIN_TENCENT_LOGS_PATH);
-            new Thread(() -> {
-                tasks.get(index).doDailyTask(countDownLatch);
-            }, Constant.GENSHIN_THREAD_PREFIX + i).start();
+        ThreadPoolExecutor executor =
+                new ThreadPoolExecutor(3, 5, 60,
+                        TimeUnit.SECONDS,
+                        new LinkedBlockingDeque<>(10),
+                        new GenTaskThreadFactory(),
+                        new ThreadPoolExecutor.AbortPolicy());
+        for (DailyTask task : tasks) {
+            executor.execute(task);
         }
-        countDownLatch.await();
+        executor.shutdown();
+    }
+
+//    private static void exec(GenshinHelperProperties properties) throws InterruptedException {
+//        List<DailyTask> tasks = createDailyTasks(properties);
+//        CountDownLatch countDownLatch = new CountDownLatch(tasks.size());
+//        for (int i = 0; i < tasks.size(); i++) {
+//            final int index = i;
+//            new Thread(() -> {
+//                tasks.get(index).doDailyTask(countDownLatch);
+//            }, Constant.GENSHIN_THREAD_PREFIX + i).start();
+//        }
+//        countDownLatch.await();
+//    }
+
+    private static String getConfig(String path) {
+        String config = System.getProperty(path);
+        if (null == config) {
+            throw new RuntimeException("config配置为空!!!");
+        }
+        return config;
     }
 
     /**
@@ -66,24 +104,4 @@ public class SignMain {
         return tasks;
     }
 
-
-    //    /**
-//     * 简单执行，可配合Linux cron
-//     *
-//     * @throws Exception
-//     */
-//    public static void simpleMainHandler(String[] args) throws Exception {
-//        GenshinHelperProperties properties = loadProperties(args);
-//        List<DailyTask> tasks = createDailyTasks(properties);
-//        ThreadPoolExecutor executor =
-//                new ThreadPoolExecutor(3, 10, 60,
-//                        TimeUnit.SECONDS,
-//                        new LinkedBlockingDeque<>(10),
-//                        new GenTaskThreadFactory(),
-//                        new ThreadPoolExecutor.AbortPolicy());
-//        for (DailyTask task : tasks) {
-//            executor.execute(task);
-//        }
-//        executor.shutdown();
-//    }
 }

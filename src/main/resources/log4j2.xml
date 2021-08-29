@@ -9,8 +9,8 @@
                 <Route>
                     <RollingFile name="logFile-${thread:threadName}"
                                  append="false"
-                                 fileName="/tmp/${thread:threadName}.log"
-                                 filePattern="/tmp/${thread:threadName}-%d{MM-dd-yyyy}.log.bak">
+                                 fileName="${sys:genshin.env.log.path}/${thread:threadName}.log"
+                                 filePattern="${sys:genshin.env.log.path}/${thread:threadName}-%d{MM-dd-yyyy}.log.bak">
                         <PatternLayout pattern="%msg%n"/>
                         <Policies>
                             <SizeBasedTriggeringPolicy size="1 MB"/>

@@ -16,7 +16,6 @@ import org.ponking.gih.util.FileUtils;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -35,7 +34,7 @@ public class DailyTask implements Runnable {
 
     public boolean pushed = false; // 是否推送日志
 
-    public String workDir; // 工作目录
+    private String logFilePath = null;
 
 
     /**
@@ -49,8 +48,13 @@ public class DailyTask implements Runnable {
     public DailyTask(String mode, String sckey, String corpid, String corpsecret, String agentid,
                      GenshinHelperProperties.Account account) {
         // 默认目录,因为云腾讯函数，只能在/tmp有读取日志权限，故手动设置腾讯云函数使用/tmp
-        String baseDir = System.getProperty("user.dir");
-        this.workDir = baseDir + File.separator + "logs";
+        if (System.getProperty(Constant.GENSHIN_ENV_LOG_PATH).equals(Constant.ENV_TENCENT_LOG_PATH)) {
+            this.logFilePath = Constant.ENV_TENCENT_LOG_PATH;
+        } else {
+            String baseDir = System.getProperty("user.dir");
+            this.logFilePath = baseDir + File.separator + "logs";
+        }
+
 
         if (mode == null) {
             genShinSign = new GenShinSignMiHoYo(account.getCookie());
@@ -85,7 +89,7 @@ public class DailyTask implements Runnable {
 
     public void doDailyTask() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        log.info("开始执行时间 {}", dtf.format(LocalDateTime.now()));
+        log.info("开始执行时间[ {} ],执行环境[ {} ]", dtf.format(LocalDateTime.now()), System.getProperty(Constant.GENSHIN_EXEC));
         if (miHoYoSign != null) {
             try {
                 miHoYoSign.doSingleThreadSign();
@@ -99,32 +103,29 @@ public class DailyTask implements Runnable {
         if (pushed && messagePush != null) {
 
             String fileName = Thread.currentThread().getName() + ".log";
-            messagePush.sendMessage("原神签到", FileUtils.loadDaily(this.workDir + File.separator + fileName));
+            messagePush.sendMessage("原神签到", FileUtils.loadDaily(logFilePath + File.separator + fileName));
         }
     }
 
-    public void doDailyTask(CountDownLatch countDownLatch) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        log.info("开始执行时间 {}", dtf.format(LocalDateTime.now()));
-        if (miHoYoSign != null) {
-            try {
-                miHoYoSign.doSingleThreadSign();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        if (genShinSign != null) {
-            genShinSign.doSign();
-        }
-        if (pushed && messagePush != null) {
-
-            String fileName = Thread.currentThread().getName() + ".log";
-            messagePush.sendMessage("原神签到", FileUtils.loadDaily(this.workDir + File.separator + fileName));
-        }
-        countDownLatch.countDown();
-    }
-
-    public void setWorkDir(String workDir) {
-        this.workDir = workDir;
-    }
+//    public void doDailyTask(CountDownLatch countDownLatch) {
+//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        log.info("开始执行时间 {}", dtf.format(LocalDateTime.now()));
+//        if (miHoYoSign != null) {
+//            try {
+//                miHoYoSign.doSingleThreadSign();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        if (genShinSign != null) {
+//            genShinSign.doSign();
+//        }
+//        if (pushed && messagePush != null) {
+//
+//            String fileName = Thread.currentThread().getName() + ".log";
+//            //System.getProperty(Constant.GENSHIN_ENV_LOG_PATH) 根据执行（腾讯云）环境，获取日志文件路径
+//            messagePush.sendMessage("原神签到", FileUtils.loadDaily(logFilePath + File.separator + fileName));
+//        }
+//        countDownLatch.countDown();
+//    }
 }
