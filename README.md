@@ -29,7 +29,7 @@
 
 ### Linux定时任务执行
 
-1. 下载最新版，或者自行打包编译
+1. [下载最新版](https://github.com/PonKing66/genshi-helper/releases/tag/v3.0.0)，或者自行打包编译
 
 ```git
 git clone https://github.com/PonKing66/genshi-helper
