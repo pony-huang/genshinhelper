@@ -1,5 +1,4 @@
 # 工具简介
-
 米哈游MiHoYo原神签到福利、社区每日签到。
 
 # 日志推送方式
@@ -28,7 +27,6 @@
 ![](./images/img_1.png)
 
 ### Linux定时任务执行
-
 1. [下载最新版](https://github.com/PonKing66/genshi-helper/releases/tag/v3.0.0)，或者自行打包编译
 
 ```git
@@ -45,10 +43,11 @@ sckey: # 仅需填写mode相关配置即可，如填写mode为weixincp，那么s
 corpid: xxxxx
 corpsecret: xxxxx
 agentid: xxxxx
-account: - cookie: xxxx
-stuid: xxxx
-stoken: xxxx
-toUser: xxxx
+account: 
+  - cookie: xxxx
+    stuid: xxxx
+    stoken: xxxx
+    toUser: xxxx
   - cookie: xxxx
     stuid: xxxx
     stoken: xxxx
@@ -57,7 +56,8 @@ toUser: xxxx
 
 3. shell
 
-配置参数config路径，`-Dgenshin.config=F:/config.yaml`
+配置参数config路径，window如例，`-Dgenshin.config=F:/config.yaml`。
+
 ```shell
 30 10 * * *  java -jar -Dgenshin.config=/opt/config.yaml genshin-helper-3.0.0.jar
 ```
@@ -74,5 +74,4 @@ toUser: xxxx
 - 支持多账号签到
 
 # 感谢
-
 - [genshin-auto-login](https://github.com/Viole403/genshin-auto-login)
