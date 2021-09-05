@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ponking.gih.push.MessagePush;
 import org.ponking.gih.push.ServerChanMessagePush;
+import org.ponking.gih.push.ServerChanTurboMessagePush;
 import org.ponking.gih.push.WeixinCPMessagePush;
 import org.ponking.gih.server.weixincp.service.WXUserInfo;
 import org.ponking.gih.sign.gs.GenShinSignMiHoYo;
@@ -67,6 +68,13 @@ public class DailyTask implements Runnable {
                 miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
             }
             messagePush = new ServerChanMessagePush(sckey);
+            pushed = true;
+        } else if ("serverChanTurbo".equals(mode)) {
+            genShinSign = new GenShinSignMiHoYo(account.getCookie());
+            if (account.getStuid() != null && account.getStoken() != null) {
+                miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            }
+            messagePush = new ServerChanTurboMessagePush(sckey);
             pushed = true;
         } else if ("weixincp".equals(mode)) {
             genShinSign = new GenShinSignMiHoYo(account.getCookie());
