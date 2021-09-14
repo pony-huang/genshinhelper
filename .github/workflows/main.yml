@@ -28,11 +28,11 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v2.3.0
         with: 
-          java-version: 1.8
+          java-version: '11'
       
       - name: Build with Maven
         run: |
-          mvn: clean package -DskipTests=true -Dmaven.java.doc.skip=true
+          mvn: clean package -DskipTests=true
           
 #       - name: GH Release
 #         # You may pin to the exact commit or the version.
