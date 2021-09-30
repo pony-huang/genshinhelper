@@ -3,8 +3,8 @@ package org.ponking.gih.push;
 import org.apache.http.Header;
 import org.ponking.gih.util.HttpUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * @Author ponking
@@ -14,21 +14,38 @@ public class ServerChanTurboMessagePush implements MessagePush {
 
     private final String scKey;
 
-    public final String SERVER_GIRL = "https://sct.ftqq.com/%s.send?text=%s&desp=%s";
+    public final String SERVER_GIRL = "https://sctapi.ftqq.com/%s.send?title=%s&desp=%s";
 
     public ServerChanTurboMessagePush(String scKey) {
         this.scKey = scKey;
     }
 
     @Override
-    public void sendMessage(String text, String desp) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("text", text);
-        data.put("desp", desp);
-        HttpUtils.doGet(getServerGirl(text, desp), new Header[0], null);
+    public void sendMessage(String title, String desp) {
+        String url = getServerGirl(title, desp);
+        HttpUtils.doPost(url, new Header[0], null);
     }
 
-    public String getServerGirl(String text, String desp) {
-        return String.format(SERVER_GIRL, scKey, text, desp);
+    public String getServerGirl(String title, String desp) {
+        String encodeDesp = "";
+        String encodeTitle = "";
+        try {
+            encodeDesp = URLEncoder.encode(cutMessage(desp), "UTF-8");
+            encodeTitle = URLEncoder.encode(title, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return String.format(SERVER_GIRL, scKey, encodeTitle, encodeDesp);
+    }
+
+    private String cutMessage(String desc) {
+        String[] split = desc.split("\n");
+        StringBuilder msg = new StringBuilder();
+        for (String s : split) {
+            if (s.contains("获取用户") || s.contains("社区签到") || s.contains("签到获取")) {
+                msg.append(s);
+            }
+        }
+        return msg.toString();
     }
 }

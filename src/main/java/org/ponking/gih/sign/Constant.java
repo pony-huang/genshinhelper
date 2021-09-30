@@ -22,10 +22,10 @@ public class Constant {
 
     public static final String ENV_TENCENT_CONFIG_PATH = "config";
 
-    public static final String MODE_SERVER_TURBO_CHAN = "serverTurboChan";
+    public static final String MODE_SERVER_TURBO_CHAN = "serverChanTurbo";
 
     public static final String MODE_SERVER_CHAN = "serverChan";
 
-    public static final String MODE_WEIXIN_CP_CHAN = "weixinCp";
+    public static final String MODE_WEIXIN_CP_CHAN = "weixincp";
 
 }

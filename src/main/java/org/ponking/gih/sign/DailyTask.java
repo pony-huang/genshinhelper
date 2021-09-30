@@ -13,10 +13,13 @@ import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.sign.gs.MiHoYoConfig;
 import org.ponking.gih.sign.gs.MiHoYoSignMiHoYo;
 import org.ponking.gih.util.FileUtils;
+import org.ponking.gih.util.StringUtils;
 
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -31,12 +34,20 @@ public class DailyTask implements Runnable {
 
     public MiHoYoSignMiHoYo miHoYoSign;
 
-    public MessagePush messagePush = null;
-
-    public boolean pushed = false; // 是否推送日志
+    public MessagePush messagePush;
 
     private String logFilePath = null;
 
+    private DailyTask(DailyTaskBuilder builder) {
+        this(builder.genShinSign, builder.miHoYoSign, builder.messagePush);
+    }
+
+    private DailyTask(GenShinSignMiHoYo genShinSign, MiHoYoSignMiHoYo miHoYoSign, MessagePush messagePush) {
+        init();
+        this.genShinSign = genShinSign;
+        this.miHoYoSign = miHoYoSign;
+        this.messagePush = messagePush;
+    }
 
     /**
      * @param mode       推送消息方式
@@ -46,8 +57,40 @@ public class DailyTask implements Runnable {
      * @param agentid    企业微信agentid
      * @param account    账号配置信息
      */
+    @Deprecated
     public DailyTask(String mode, String sckey, String corpid, String corpsecret, String agentid,
                      GenshinHelperProperties.Account account) {
+        init();
+        if (mode == null) {
+            genShinSign = new GenShinSignMiHoYo(account.getCookie());
+            if (account.getStuid() != null && account.getStoken() != null) {
+                miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            }
+        } else if (Constant.MODE_SERVER_CHAN.equals(mode)) {
+            genShinSign = new GenShinSignMiHoYo(account.getCookie());
+            if (account.getStuid() != null && account.getStoken() != null) {
+                miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            }
+            messagePush = new ServerChanMessagePush(sckey);
+        } else if (Constant.MODE_SERVER_TURBO_CHAN.equals(mode)) {
+            genShinSign = new GenShinSignMiHoYo(account.getCookie());
+            if (account.getStuid() != null && account.getStoken() != null) {
+                miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            }
+            messagePush = new ServerChanTurboMessagePush(sckey);
+        } else if (Constant.MODE_WEIXIN_CP_CHAN.equals(mode)) {
+            genShinSign = new GenShinSignMiHoYo(account.getCookie());
+            if (account.getStuid() != null && account.getStoken() != null) {
+                miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            }
+            WXUserInfo wxUserInfo = new WXUserInfo(corpid, corpsecret, agentid, account.getToUser());
+            messagePush = new WeixinCPMessagePush(wxUserInfo);
+        } else {
+            throw new UnsupportedOperationException("参数异常");
+        }
+    }
+
+    private void init() {
         // 默认目录,因为云腾讯函数，只能在/tmp有读取日志权限，故手动设置腾讯云函数使用/tmp
         if (System.getProperty(Constant.GENSHIN_ENV_LOG_PATH).equals(Constant.ENV_TENCENT_LOG_PATH)) {
             this.logFilePath = Constant.ENV_TENCENT_LOG_PATH;
@@ -55,85 +98,122 @@ public class DailyTask implements Runnable {
             String baseDir = System.getProperty("user.dir");
             this.logFilePath = baseDir + File.separator + "logs";
         }
-
-
-        if (mode == null) {
-            genShinSign = new GenShinSignMiHoYo(account.getCookie());
-            if (account.getStuid() != null && account.getStoken() != null) {
-                miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
-            }
-        } else if ("serverChan".equals(mode)) {
-            genShinSign = new GenShinSignMiHoYo(account.getCookie());
-            if (account.getStuid() != null && account.getStoken() != null) {
-                miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
-            }
-            messagePush = new ServerChanMessagePush(sckey);
-            pushed = true;
-        } else if ("serverChanTurbo".equals(mode)) {
-            genShinSign = new GenShinSignMiHoYo(account.getCookie());
-            if (account.getStuid() != null && account.getStoken() != null) {
-                miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
-            }
-            messagePush = new ServerChanTurboMessagePush(sckey);
-            pushed = true;
-        } else if ("weixincp".equals(mode)) {
-            genShinSign = new GenShinSignMiHoYo(account.getCookie());
-            if (account.getStuid() != null && account.getStoken() != null) {
-                miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
-            }
-            WXUserInfo wxUserInfo = new WXUserInfo(corpid, corpsecret, agentid, account.getToUser());
-            messagePush = new WeixinCPMessagePush(wxUserInfo);
-            pushed = true;
-        } else {
-            throw new UnsupportedOperationException("参数异常");
-        }
     }
+
 
     @SneakyThrows
     @Override
     public void run() {
-        doDailyTask();
-    }
-
-    public void doDailyTask() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         log.info("开始执行时间[ {} ],执行环境[ {} ]", dtf.format(LocalDateTime.now()), System.getProperty(Constant.GENSHIN_EXEC));
-        if (miHoYoSign != null) {
+        work();
+    }
+
+    public void doDailyTask(CountDownLatch countDownLatch) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        log.info("开始执行时间 {}", dtf.format(LocalDateTime.now()));
+        work();
+        countDownLatch.countDown();
+    }
+
+    private void work() {
+        if (Objects.nonNull(miHoYoSign)) {
             try {
                 miHoYoSign.doSingleThreadSign();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        if (genShinSign != null) {
+        if (Objects.nonNull(genShinSign)) {
             genShinSign.doSign();
         }
-        if (pushed && messagePush != null) {
-
+        if (Objects.nonNull(messagePush)) {
             String fileName = Thread.currentThread().getName() + ".log";
+            //System.getProperty(Constant.GENSHIN_ENV_LOG_PATH) 根据执行（腾讯云）环境，获取日志文件路径
             messagePush.sendMessage("原神签到", FileUtils.loadDaily(logFilePath + File.separator + fileName));
         }
     }
 
-//    public void doDailyTask(CountDownLatch countDownLatch) {
-//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//        log.info("开始执行时间 {}", dtf.format(LocalDateTime.now()));
-//        if (miHoYoSign != null) {
-//            try {
-//                miHoYoSign.doSingleThreadSign();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (genShinSign != null) {
-//            genShinSign.doSign();
-//        }
-//        if (pushed && messagePush != null) {
-//
-//            String fileName = Thread.currentThread().getName() + ".log";
-//            //System.getProperty(Constant.GENSHIN_ENV_LOG_PATH) 根据执行（腾讯云）环境，获取日志文件路径
-//            messagePush.sendMessage("原神签到", FileUtils.loadDaily(logFilePath + File.separator + fileName));
-//        }
-//        countDownLatch.countDown();
-//    }
+    public static DailyTaskBuilder builder() {
+        return new DailyTaskBuilder();
+    }
+
+
+    public static class DailyTaskBuilder {
+
+        public GenShinSignMiHoYo genShinSign = null;
+
+        public MiHoYoSignMiHoYo miHoYoSign = null;
+
+        public MessagePush messagePush = null;
+
+        public DailyTaskBuilder account(String cookie) {
+            genShinSign = new GenShinSignMiHoYo(cookie);
+            return this;
+        }
+
+        public DailyTaskBuilder msgPush(String mode, String scKey, String... params) {
+
+            switch (mode) {
+                case Constant.MODE_SERVER_CHAN: {
+                    if (StringUtils.isBank(scKey)) {
+                        throw new RuntimeException("参数有误");
+                    }
+                    messagePush = new ServerChanMessagePush(scKey);
+                    break;
+                }
+                case Constant.MODE_SERVER_TURBO_CHAN: {
+                    if (StringUtils.isBank(scKey)) {
+                        throw new RuntimeException("参数有误");
+                    }
+                    messagePush = new ServerChanTurboMessagePush(scKey);
+                    break;
+                }
+                case Constant.MODE_WEIXIN_CP_CHAN: {
+                    WXUserInfo wxUserInfo = new WXUserInfo(params[0], params[1], params[2], params.length != 4 ? null : params[3]);
+                    messagePush = new WeixinCPMessagePush(wxUserInfo);
+                    break;
+                }
+                default:
+                    break;
+            }
+            return this;
+        }
+
+        public DailyTaskBuilder miHoYoSign(String stuid, String stoken) {
+            if (StringUtils.isBank(stuid) || StringUtils.isBank(stoken)) {
+                throw new RuntimeException("参数有误");
+            }
+            miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), stuid, stoken);
+            return this;
+        }
+
+        public DailyTaskBuilder miHoYoSign(GenshinHelperProperties.Account account) {
+            if (StringUtils.isBank(account.getStuid()) || StringUtils.isBank(account.getStoken())) {
+                throw new RuntimeException("参数有误");
+            }
+            miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            return this;
+        }
+
+        public DailyTaskBuilder miHoYoSignHub(MiHoYoConfig.HubsEnum type, GenshinHelperProperties.Account account) {
+            if (StringUtils.isBank(account.getStuid()) || StringUtils.isBank(account.getStoken())) {
+                throw new RuntimeException("参数有误");
+            }
+            miHoYoSign = new MiHoYoSignMiHoYo(type.getGame(), account.getStuid(), account.getStoken());
+            return this;
+        }
+
+        public DailyTaskBuilder miHoYoSignHub(MiHoYoConfig.HubsEnum type, String stuid, String stoken) {
+            if (StringUtils.isBank(stuid) || StringUtils.isBank(stoken)) {
+                throw new RuntimeException("参数有误");
+            }
+            miHoYoSign = new MiHoYoSignMiHoYo(type.getGame(), stuid, stoken);
+            return this;
+        }
+
+        public DailyTask build() {
+            return new DailyTask(this);
+        }
+    }
 }
