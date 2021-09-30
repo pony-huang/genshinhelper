@@ -53,7 +53,7 @@ public class SignMain {
         execDownLatch(properties);
     }
 
-    public static void exec(GenshinHelperProperties properties) throws Exception {
+    public static void exec(GenshinHelperProperties properties) {
         List<DailyTask> tasks = createDailyTasks(properties);
         ThreadPoolExecutor executor =
                 new ThreadPoolExecutor(3, 5, 60,
