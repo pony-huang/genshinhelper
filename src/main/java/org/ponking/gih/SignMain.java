@@ -11,6 +11,7 @@ import org.ponking.gih.util.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +50,7 @@ public class SignMain {
     public static void mainHandler(KeyValueClass keyValueClass) throws Exception {
         String config = getConfig(Constant.ENV_TENCENT_CONFIG_PATH);
         GenshinHelperProperties properties = JSON.parseObject(config, GenshinHelperProperties.class);
-        exec(properties);
+        execDownLatch(properties);
     }
 
     public static void exec(GenshinHelperProperties properties) throws Exception {
@@ -66,17 +67,17 @@ public class SignMain {
         executor.shutdown();
     }
 
-//    private static void exec(GenshinHelperProperties properties) throws InterruptedException {
-//        List<DailyTask> tasks = createDailyTasks(properties);
-//        CountDownLatch countDownLatch = new CountDownLatch(tasks.size());
-//        for (int i = 0; i < tasks.size(); i++) {
-//            final int index = i;
-//            new Thread(() -> {
-//                tasks.get(index).doDailyTask(countDownLatch);
-//            }, Constant.GENSHIN_THREAD_PREFIX + i).start();
-//        }
-//        countDownLatch.await();
-//    }
+    private static void execDownLatch(GenshinHelperProperties properties) throws InterruptedException {
+        List<DailyTask> tasks = createDailyTasks(properties);
+        CountDownLatch countDownLatch = new CountDownLatch(tasks.size());
+        for (int i = 0; i < tasks.size(); i++) {
+            final int index = i;
+            new Thread(() -> {
+                tasks.get(index).doDailyTask(countDownLatch);
+            }, Constant.GENSHIN_THREAD_PREFIX + i).start();
+        }
+        countDownLatch.await();
+    }
 
     private static String getConfig(String path) {
         String config = System.getProperty(path);
@@ -96,9 +97,17 @@ public class SignMain {
         List<DailyTask> tasks = new ArrayList<>();
         if (properties != null) {
             for (GenshinHelperProperties.Account account : properties.getAccount()) {
-                DailyTask dailyTask = new DailyTask(properties.getMode(), properties.getSckey(), properties.getCorpid(),
-                        properties.getCorpsecret(), properties.getAgentid(), account);
-                tasks.add(dailyTask);
+                DailyTask task = DailyTask.builder()
+                        .account(account.getCookie())
+                        .miHoYoSign(account)
+                        .msgPush(properties.getMode(),
+                                properties.getSckey(),
+                                properties.getCorpid(),
+                                properties.getCorpsecret(),
+                                properties.getAgentid(),
+                                account.getToUser())
+                        .build();
+                tasks.add(task);
             }
         }
         return tasks;
