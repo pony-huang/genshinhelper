@@ -36,10 +36,12 @@ public class DailyTask implements Runnable {
 
     public MessagePush messagePush;
 
+    private String[] signMode;
+
     private String logFilePath = null;
 
     private DailyTask(DailyTaskBuilder builder) {
-        this(builder.genShinSign, builder.miHoYoSign, builder.messagePush);
+        this(builder.genShinSign, builder.miHoYoSign, builder.messagePush, builder.signMode);
     }
 
     private DailyTask(GenShinSignMiHoYo genShinSign, MiHoYoSignMiHoYo miHoYoSign, MessagePush messagePush) {
@@ -47,6 +49,15 @@ public class DailyTask implements Runnable {
         this.genShinSign = genShinSign;
         this.miHoYoSign = miHoYoSign;
         this.messagePush = messagePush;
+    }
+
+    private DailyTask(GenShinSignMiHoYo genShinSign, MiHoYoSignMiHoYo miHoYoSign,
+                      MessagePush messagePush, String[] signMode) {
+        init();
+        this.genShinSign = genShinSign;
+        this.miHoYoSign = miHoYoSign;
+        this.messagePush = messagePush;
+        this.signMode = signMode;
     }
 
     /**
@@ -119,7 +130,26 @@ public class DailyTask implements Runnable {
     private void work() {
         if (Objects.nonNull(miHoYoSign)) {
             try {
-                miHoYoSign.doSingleThreadSign();
+                if (Objects.nonNull(signMode)) {
+                    String[] arr = this.signMode;
+                    for (String val : arr) {
+                        String type = val.toUpperCase();
+                        if (type.equals(MiHoYoConfig.HubsEnum.YS.toString())) {
+                            miHoYoSign.reSetHub(MiHoYoConfig.HubsEnum.YS.getGame());
+                        } else if (type.equals(MiHoYoConfig.HubsEnum.BH3.toString())) {
+                            miHoYoSign.reSetHub(MiHoYoConfig.HubsEnum.BH3.getGame());
+                        } else if (type.equals(MiHoYoConfig.HubsEnum.DBY.toString())) {
+                            miHoYoSign.reSetHub(MiHoYoConfig.HubsEnum.DBY.getGame());
+                        } else if (type.equals(MiHoYoConfig.HubsEnum.WD.toString())) {
+                            miHoYoSign.reSetHub(MiHoYoConfig.HubsEnum.WD.getGame());
+                        } else {
+                            continue;
+                        }
+                        miHoYoSign.doSingleThreadSign();
+                    }
+                } else {
+                    miHoYoSign.doSingleThreadSign();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -141,11 +171,13 @@ public class DailyTask implements Runnable {
 
     public static class DailyTaskBuilder {
 
-        public GenShinSignMiHoYo genShinSign = null;
+        private GenShinSignMiHoYo genShinSign = null;
 
-        public MiHoYoSignMiHoYo miHoYoSign = null;
+        private MiHoYoSignMiHoYo miHoYoSign = null;
 
-        public MessagePush messagePush = null;
+        private MessagePush messagePush = null;
+
+        private String[] signMode;
 
         public DailyTaskBuilder account(String cookie) {
             genShinSign = new GenShinSignMiHoYo(cookie);
@@ -153,7 +185,6 @@ public class DailyTask implements Runnable {
         }
 
         public DailyTaskBuilder msgPush(String mode, String scKey, String... params) {
-
             switch (mode) {
                 case Constant.MODE_SERVER_CHAN: {
                     if (StringUtils.isBank(scKey)) {
@@ -180,19 +211,43 @@ public class DailyTask implements Runnable {
             return this;
         }
 
-        public DailyTaskBuilder miHoYoSign(String stuid, String stoken) {
+
+        public DailyTaskBuilder miHoYoSign(MiHoYoConfig.HubsEnum type, String stuid, String stoken) {
             if (StringUtils.isBank(stuid) || StringUtils.isBank(stoken)) {
                 throw new RuntimeException("参数有误");
             }
-            miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), stuid, stoken);
+            miHoYoSign = new MiHoYoSignMiHoYo(type.getGame(), stuid, stoken);
             return this;
         }
 
+        public DailyTaskBuilder signMode(String signMode) {
+            if (StringUtils.isBank(signMode)) {
+                throw new RuntimeException("参数有误");
+            }
+            this.signMode = signMode.split(",");
+            return this;
+        }
+
+
+        /**
+         * 默认原神
+         *
+         * @param account
+         * @return
+         */
         public DailyTaskBuilder miHoYoSign(GenshinHelperProperties.Account account) {
             if (StringUtils.isBank(account.getStuid()) || StringUtils.isBank(account.getStoken())) {
                 throw new RuntimeException("参数有误");
             }
             miHoYoSign = new MiHoYoSignMiHoYo(MiHoYoConfig.HubsEnum.YS.getGame(), account.getStuid(), account.getStoken());
+            return this;
+        }
+
+        public DailyTaskBuilder miHoYoSign(MiHoYoConfig.HubsEnum type, GenshinHelperProperties.Account account) {
+            if (StringUtils.isBank(account.getStuid()) || StringUtils.isBank(account.getStoken())) {
+                throw new RuntimeException("参数有误");
+            }
+            miHoYoSign = new MiHoYoSignMiHoYo(type.getGame(), account.getStuid(), account.getStoken());
             return this;
         }
 

@@ -1,6 +1,5 @@
 # 工具简介
-米哈游MiHoYo原神签到福利、社区每日签到。
-
+米哈游mihoyo原神签到福利、社区每日签到。 支持多大别野、崩坏3、未定事件薄频道签到
 # 日志推送方式
 - [Server酱](https://sct.ftqq.com/upgrade?fr=sc)
 - 微信企业个人推送（推荐）
@@ -44,6 +43,7 @@ mvn clean package
 mode: weixincp # 设置企业微信推送（serverChan: server酱, serverChanTurbo: serverChanTurbo酱, weixincp：企业微信）
 sckey: # 仅需填写mode相关配置即可，如填写mode为weixincp，那么sckey不用填写
 corpid: xxxxx
+signMode: ys, dby, bh3 # ys 原神, dby 大别野, bh3 崩坏3, wd未定事件薄
 corpsecret: xxxxx
 agentid: xxxxx
 account: 
@@ -70,6 +70,7 @@ account:
 
 # 更新
 
+- 支持多大别野、崩坏3、未定事件薄频道签到
 - 修正Server酱·Turbo链接
 - 更新腾讯云函数支持日志推送
 - 添加腾讯云函数

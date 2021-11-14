@@ -21,9 +21,9 @@ import java.util.concurrent.*;
  */
 public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
-    private static Logger log = LogManager.getLogger(MiHoYoSignMiHoYo.class.getName());
+    private static final Logger log = LogManager.getLogger(MiHoYoSignMiHoYo.class.getName());
 
-    private final MiHoYoConfig.Hub hub;
+    private MiHoYoConfig.Hub hub;
 
     private final String stuid;
 
@@ -48,10 +48,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
     private final CountDownLatch countDownLatch = new CountDownLatch(3);
 
-    /**
-     * 辣鸡服务器1v2学生机，常驻线程不会炸？
-     */
-    private ExecutorService pool;
+    private final ExecutorService pool;
 
     public MiHoYoSignMiHoYo(MiHoYoConfig.Hub hub, String stuid, String stoken) {
         this(null, hub, stuid, stoken, null);
@@ -74,12 +71,12 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
     @Override
     public void doSign() throws Exception {
-        log.info("社区签到任务开始");
+        log.info("{}社区签到任务开始", hub.getName());
         sign();
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
         genShinHomePosts.addAll(homePosts);
-        log.info("获取社区帖子数: {}", genShinHomePosts.size());
+        log.info("{}获取社区帖子数: {}", hub.getName(), genShinHomePosts.size());
         //执行任务
         Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, genShinHomePosts));
         Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, genShinHomePosts));
@@ -89,7 +86,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         log.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
         log.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
 //        pool.shutdown();  会导致阻塞
-        log.info("社区签到任务完成");
+        log.info("{}社区签到任务完成", hub.getName());
     }
 
 
@@ -98,7 +95,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
         genShinHomePosts.addAll(homePosts);
-        log.info("获取社区帖子数: {}", genShinHomePosts.size());
+        log.info("{}获取社区帖子数: {}", hub.getName(), genShinHomePosts.size());
         //执行任务
         Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM, genShinHomePosts);
         Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM, genShinHomePosts);
@@ -114,7 +111,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         }
         countDownLatch.await();
         //打印日志
-        log.info("浏览帖子: {},点赞帖子: {},分享帖子: {}", vpf.get(), upf.get(), spf.get());
+        log.info("{}社区任务结束,浏览帖子: {},点赞帖子: {},分享帖子: {}", hub.getName(), vpf.get(), upf.get(), spf.get());
     }
 
     public Callable<Integer> createTask(Object obj, String methodName, int num, List<PostResult> posts) {
@@ -156,7 +153,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
 
     /**
-     * 原神社区签到
+     * 社区签到
      */
     public void sign() {
         JSONObject signResult = HttpUtils.doPost(String.format(MiHoYoConfig.HUB_SIGN_URL, hub.getForumId()), getHeaders(), null);
@@ -169,7 +166,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
 
     /**
-     * 原神频道
+     * 游戏频道
      *
      * @throws Exception
      */
@@ -178,7 +175,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
     }
 
     /**
-     * 旅行者社区讨论区
+     * 讨论区
      *
      * @throws Exception
      */
@@ -301,4 +298,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
                 .add("cookie", "stuid=" + stuid + ";stoken=" + stoken + ";").build();
     }
 
+    public void reSetHub(MiHoYoConfig.Hub hub) {
+        this.hub = hub;
+    }
 }

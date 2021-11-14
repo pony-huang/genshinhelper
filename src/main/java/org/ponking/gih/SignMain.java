@@ -100,6 +100,7 @@ public class SignMain {
                 DailyTask task = DailyTask.builder()
                         .account(account.getCookie())
                         .miHoYoSign(account)
+                        .signMode(properties.getSignMode())
                         .msgPush(properties.getMode(),
                                 properties.getSckey(),
                                 properties.getCorpid(),

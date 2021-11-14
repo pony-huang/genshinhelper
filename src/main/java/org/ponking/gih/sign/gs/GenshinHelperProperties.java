@@ -24,6 +24,8 @@ public class GenshinHelperProperties implements Serializable {
 
     private String agentid;
 
+    private String signMode;
+
     private List<Account> account;
 
     private String cron;
