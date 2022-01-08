@@ -1,10 +1,15 @@
 # 工具简介
+
 米哈游mihoyo原神签到福利、社区每日签到。 支持多大别野、崩坏3、未定事件薄频道签到
+
 # 日志推送方式
+
 - [Server酱](https://sct.ftqq.com/upgrade?fr=sc)
 - 微信企业个人推送（推荐）
 - Server酱·Turbo暂支持企业微信应用消息消息通道(不推荐)
+
 ## 微信企业个人推送
+
 ![](./images/img_2.png)
 
 **新建微信企业教程：**
@@ -19,37 +24,83 @@
 ## 获取cookie
 
 1. 登录 https://bbs.mihoyo.com/ys/ （如果已经登录，需要退出再重新登录）。
+   ![](./images/img_1.png)
 2. 按下F12并复制cookie
-~~> 注意：目前web上cookie不能获取login_ticket（可能要抓APP）,config.yaml中的stuid,stoken可不填~~
-3. 登录 https://user.mihoyo.com/ 该链接在cookie能获取login_ticket
-4. 使用 GetstokenUtils 工具类可获取stoken,stuid(本作者不想写js脚本🤣😁)
+   > 注意：原神福利签到不需要，config.yaml中的stuid,stoken可不填。
+3. 获取stoken,stuid。stuid就是你的uid
+   1. 使用 GetstokenUtils 工具类可获取。
+   2. 或者在Chrome f12,浏览器控制台输入：
 
-![](./images/img_1.png)
+```javascript
+function getCookieMap(cookie) {
+   let cookiePattern = /^(\S+)=(\S+)$/;
+   let cookieArray = cookie.split("; ");
+   let cookieMap = new Map();
+   for (let item of cookieArray) {
+      let entry = cookiePattern.exec(item);
+      cookieMap.set(entry[1], entry[2]);
+   }
+   return cookieMap;
+}
+
+const map = getCookieMap(document.cookie);
+const loginTicket = map.get("login_ticket");
+const loginUid = map.get("login_uid");
+const url = "https://api-takumi.mihoyo.com/auth/api/getMultiTokenByLoginTicket?login_ticket=" + loginTicket + "&token_types=3&uid=" + loginUid;
+fetch(url, {
+   "headers": {
+      "x-rpc-device_id": "zxcvbnmasadfghjk123456",
+      "Content-Type": "application/json;charset=UTF-8",
+      "x-rpc-client_type": "",
+      "x-rpc-app_version": "",
+      "DS": "",
+      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/%s",
+      "Referer": "cors",
+      "Accept-Encoding": "gzip, deflate, br",
+      "x-rpc-channel": "appstore",
+   },
+   "method": "GET"
+}).then(
+        function (response) {
+           if (response.status !== 200) {
+              return;
+           }
+           response.json().then(function (data) {
+              console.log(data);
+           });
+        }
+).catch(function (err) {
+   console.log('Fetch Error :-S', err);
+});
+```
+
+![](./images/img_8.png)
 
 ### Linux定时任务执行
 
 1. [下载最新版](https://github.com/PonKing66/genshi-helper/releases/tag/v3.0.0)
 
 2. 自行打包编译
-```git
-git clone https://github.com/PonKing66/genshi-helper
-cd genshin-helper
-mvn clean package
+
+```shell
+   git clone https://github.com/PonKing66/genshi-helper
+   cd genshin-helper
+   mvn clean package
 ```
 
 3. 配置config.yaml
 
-```json
+```yaml
 mode: weixincp # 设置企业微信推送（serverChan: server酱, serverChanTurbo: serverChanTurbo酱, weixincp：企业微信）
 sckey: # 仅需填写mode相关配置即可，如填写mode为weixincp，那么sckey不用填写
 corpid: xxxxx
 signMode: ys, dby, bh3 # ys 原神, dby 大别野, bh3 崩坏3, wd未定事件薄
 corpsecret: xxxxx
 agentid: xxxxx
-account: 
-  - cookie: xxxx
-    stuid: xxxx
-    stoken: xxxx
+account:
+   - cookie: xxxx
+     stuid: xxxx
+     stoken: xxxx
     toUser: xxxx
   - cookie: xxxx
     stuid: xxxx
@@ -66,6 +117,7 @@ account:
 ```
 
 ### 腾讯云函数执行 （推荐）
+
 [文档](./doc/腾讯云函数.md)
 
 # 更新
@@ -80,4 +132,5 @@ account:
 - 支持多账号签到
 
 # 感谢
+
 - [genshin-auto-login](https://github.com/Viole403/genshin-auto-login)
