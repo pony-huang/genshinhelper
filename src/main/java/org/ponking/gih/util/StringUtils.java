@@ -19,6 +19,6 @@ public class StringUtils {
     }
 
     public static boolean isBank(String str) {
-        return "".equals(str) || str.length() == 0;
+        return str == null || "".equals(str) || str.length() == 0;
     }
 }
