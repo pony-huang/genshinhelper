@@ -27,7 +27,7 @@
    ![](./images/img_1.png)
 2. 按下F12并复制cookie
    > 注意：原神福利签到不需要，config.yaml中的stuid,stoken可不填。
-3. 获取stoken,stuid。stuid就是你的uid
+3. 获取stoken,stuid。stuid就是你的uid。登录 `https://user.mihoyo.com/` 该链接在cookie能获取login_ticket
    1. 使用 GetstokenUtils 工具类可获取。
    2. 或者在Chrome f12,浏览器控制台输入：
 
@@ -101,11 +101,11 @@ account:
    - cookie: xxxx
      stuid: xxxx
      stoken: xxxx
-    toUser: xxxx
-  - cookie: xxxx
-    stuid: xxxx
-    stoken: xxxx
-    toUser: xxxx
+     toUser: xxxx
+   - cookie: xxxx
+     stuid: xxxx
+     stoken: xxxx
+     toUser: xxxx
 ```
 
 4. shell
