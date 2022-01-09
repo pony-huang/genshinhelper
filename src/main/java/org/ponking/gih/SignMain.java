@@ -50,10 +50,10 @@ public class SignMain {
     public static void mainHandler(KeyValueClass keyValueClass) throws Exception {
         String config = getConfig(Constant.ENV_TENCENT_CONFIG_PATH);
         GenshinHelperProperties properties = JSON.parseObject(config, GenshinHelperProperties.class);
-        execDownLatch(properties);
+        exec(properties);
     }
 
-    public static void exec(GenshinHelperProperties properties) {
+    public static void exec(GenshinHelperProperties properties) throws InterruptedException {
         List<DailyTask> tasks = createDailyTasks(properties);
         ThreadPoolExecutor executor =
                 new ThreadPoolExecutor(3, 5, 60,
@@ -65,8 +65,13 @@ public class SignMain {
             executor.execute(task);
         }
         executor.shutdown();
+        while (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+            log.info("GenTaskThreadPool is not closed yet!");
+        }
+        log.info("GenTaskThreadPool shutdown");
     }
 
+    @Deprecated
     private static void execDownLatch(GenshinHelperProperties properties) throws InterruptedException {
         List<DailyTask> tasks = createDailyTasks(properties);
         CountDownLatch countDownLatch = new CountDownLatch(tasks.size());
