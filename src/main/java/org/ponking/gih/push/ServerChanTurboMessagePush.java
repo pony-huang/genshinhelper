@@ -30,22 +30,11 @@ public class ServerChanTurboMessagePush implements MessagePush {
         String encodeDesp = "";
         String encodeTitle = "";
         try {
-            encodeDesp = URLEncoder.encode(cutMessage(desp), "UTF-8");
+            encodeDesp = URLEncoder.encode(desp, "UTF-8");
             encodeTitle = URLEncoder.encode(title, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return String.format(SERVER_GIRL, scKey, encodeTitle, encodeDesp);
-    }
-
-    private String cutMessage(String desc) {
-        String[] split = desc.split("\n");
-        StringBuilder msg = new StringBuilder();
-        for (String s : split) {
-            if (s.contains("获取用户") || s.contains("社区签到") || s.contains("签到获取")) {
-                msg.append(s);
-            }
-        }
-        return msg.toString();
     }
 }
