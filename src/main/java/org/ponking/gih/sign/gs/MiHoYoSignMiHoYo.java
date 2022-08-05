@@ -63,9 +63,9 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         this.hub = hub;
         this.stuid = stuid;
         this.stoken = stoken;
-        setClientType("2");
-        setAppVersion("2.8.0");
-        setSalt("dmq2p7ka6nsu0d3ev6nex4k1ndzrnfiy");
+        setClientType("5");
+        setAppVersion("2.34.1");
+        setSalt("9nQiU3AV0rJSIBWgdynfoGMGKaklfbM7");
         this.pool = executor;
     }
 
