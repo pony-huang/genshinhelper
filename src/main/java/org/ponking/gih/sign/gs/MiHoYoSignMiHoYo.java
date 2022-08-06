@@ -63,9 +63,9 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         this.hub = hub;
         this.stuid = stuid;
         this.stoken = stoken;
-        setClientType("5");
-        setAppVersion("2.34.1");
-        setSalt("9nQiU3AV0rJSIBWgdynfoGMGKaklfbM7");
+        setClientType(MiHoYoConfig.CLIENT_TYPE);
+        setAppVersion(MiHoYoConfig.APP_VERSION);
+        setSalt(MiHoYoConfig.SLAT);
         this.pool = executor;
     }
 
@@ -76,15 +76,15 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
         genShinHomePosts.addAll(homePosts);
-        log.info("{}获取社区帖子数: {}", hub.getName(), genShinHomePosts.size());
+//        log.info("{}获取社区帖子数: {}", hub.getName(), genShinHomePosts.size());
         //执行任务
         Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, genShinHomePosts));
         Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, genShinHomePosts));
         Future<Integer> upf = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts));
         //打印日志
-        log.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
-        log.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
-        log.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
+//        log.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
+//        log.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
+//        log.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
 //        pool.shutdown();  会导致阻塞
         log.info("{}社区签到任务完成", hub.getName());
     }
@@ -95,7 +95,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
         genShinHomePosts.addAll(homePosts);
-        log.info("{}获取社区帖子数: {}", hub.getName(), genShinHomePosts.size());
+//        log.info("{}获取社区帖子数: {}", hub.getName(), genShinHomePosts.size());
         //执行任务
         Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM, genShinHomePosts);
         Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM, genShinHomePosts);
@@ -111,7 +111,8 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         }
         countDownLatch.await();
         //打印日志
-        log.info("{}社区任务结束,浏览帖子: {},点赞帖子: {},分享帖子: {}", hub.getName(), vpf.get(), upf.get(), spf.get());
+//        log.info("{}社区任务结束,浏览帖子: {},点赞帖子: {},分享帖子: {}", hub.getName(), vpf.get(), upf.get(), spf.get());
+//        log.info("{}社区签到任务完成", hub.getName());
     }
 
     public Callable<Integer> createTask(Object obj, String methodName, int num, List<PostResult> posts) {
@@ -158,9 +159,9 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
     public void sign() {
         JSONObject signResult = HttpUtils.doPost(String.format(MiHoYoConfig.HUB_SIGN_URL, hub.getForumId()), getHeaders(), null);
         if ("OK".equals(signResult.get("message")) || "重复".equals(signResult.get("message"))) {
-            log.info("社区签到: {}", signResult.get("message"));
+            log.info("{}社区签到: {}", hub.getName(), signResult.get("message"));
         } else {
-            log.info("社区签到失败: {}", signResult.get("message"));
+            log.info("{}社区签到失败: {}", hub.getName(), signResult.get("message"));
         }
     }
 
@@ -193,9 +194,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         JSONObject result = HttpUtils.doGet(url, getHeaders());
         if ("OK".equals(result.get("message"))) {
             JSONArray jsonArray = result.getJSONObject("data").getJSONArray("list");
-            List<PostResult> posts = JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {
-            });
-            return posts;
+            return JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {});
         } else {
             throw new Exception("帖子数为空，请查配置并更新！！！");
         }

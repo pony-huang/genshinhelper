@@ -26,9 +26,9 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
 
     public GenShinSignMiHoYo(String cookie) {
         super(cookie);
-        setClientType("5");
-        setAppVersion("2.34.1");
-        setSalt("9nQiU3AV0rJSIBWgdynfoGMGKaklfbM7");
+        setClientType(MiHoYoConfig.CLIENT_TYPE);
+        setAppVersion(MiHoYoConfig.APP_VERSION);
+        setSalt(MiHoYoConfig.SLAT);
     }
 
     @Override
@@ -41,7 +41,6 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
     /**
      * 签到（重载doSign,主要用来本地测试）
      *
-     * @param uid
      */
     public void doSign(String uid) {
         Map<String, Object> data = new HashMap<>();
@@ -65,8 +64,8 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
         JSONObject result = HttpUtils.doGet(MiHoYoConfig.ROLE_URL, getBasicHeaders());
         String uid = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("game_uid");
         String nickname = (String) result.getJSONObject("data").getJSONArray("list").getJSONObject(0).get("nickname");
-        log.info("获取用户UID：{}", uid);
-        log.info("当前用户名称：{}", nickname);
+        log.info("用户UID：{}", uid);
+        log.info("用户名称：{}", nickname);
         setUid(uid);
         return uid;
     }

@@ -116,13 +116,13 @@ public class DailyTask implements Runnable {
     @Override
     public void run() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        log.info("开始执行时间[ {} ],执行环境[ {} ]", dtf.format(LocalDateTime.now()), System.getProperty(Constant.GENSHIN_EXEC));
+//        log.info("Time:{} ,Os:{}", dtf.format(LocalDateTime.now()), System.getProperty(Constant.GENSHIN_EXEC));
         work();
     }
 
     public void doDailyTask(CountDownLatch countDownLatch) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        log.info("开始执行时间[ {} ],执行环境[ {} ]", dtf.format(LocalDateTime.now()), System.getProperty(Constant.GENSHIN_EXEC));
+//        log.info("开始执行时间[ {} ],执行环境[ {} ]", dtf.format(LocalDateTime.now()), System.getProperty(Constant.GENSHIN_EXEC));
         work();
         countDownLatch.countDown();
     }
@@ -222,7 +222,7 @@ public class DailyTask implements Runnable {
 
         public DailyTaskBuilder signMode(String signMode) {
             if (StringUtils.isBank(signMode)) {
-                throw new RuntimeException("参数有误");
+                signMode = "ys";
             }
             this.signMode = signMode.split(",");
             return this;

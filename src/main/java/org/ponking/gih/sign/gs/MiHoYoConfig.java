@@ -12,7 +12,9 @@ public class MiHoYoConfig {
      **/
     public static final String ACT_ID = "e202009291139501"; // 切勿乱修改
 
-    public static final String APP_VERSION = "2.3.0"; // 切勿乱修改
+    public static final String APP_VERSION = "2.34.1"; // 切勿乱修改
+
+    public static final String SLAT = "9nQiU3AV0rJSIBWgdynfoGMGKaklfbM7"; // 切勿乱修改
 
     /**
      * Android 2
