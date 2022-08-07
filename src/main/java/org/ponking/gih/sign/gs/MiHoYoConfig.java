@@ -14,12 +14,16 @@ public class MiHoYoConfig {
 
     public static final String APP_VERSION = "2.34.1"; // 切勿乱修改
 
-    public static final String SLAT = "9nQiU3AV0rJSIBWgdynfoGMGKaklfbM7"; // 切勿乱修改
+    public static final String SLAT_WEB = "9nQiU3AV0rJSIBWgdynfoGMGKaklfbM7"; // 切勿乱修改
+
+    public static final String SLAT = "z8DRIUjNDT7IT5IZXvrUAxyupA1peND9"; // 切勿乱修改
 
     /**
      * Android 2
      */
     public static final String CLIENT_TYPE = "5"; // 切勿乱修改
+
+    public static final String CLIENT_TYPE_ANDROID = "2"; // 切勿乱修改
 
     public static final String DEVICE_NAME = "Xiaomi Redmi Note 4";
 

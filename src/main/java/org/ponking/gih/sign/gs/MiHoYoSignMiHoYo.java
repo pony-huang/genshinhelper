@@ -63,7 +63,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         this.hub = hub;
         this.stuid = stuid;
         this.stoken = stoken;
-        setClientType(MiHoYoConfig.CLIENT_TYPE);
+        setClientType(MiHoYoConfig.CLIENT_TYPE_ANDROID);
         setAppVersion(MiHoYoConfig.APP_VERSION);
         setSalt(MiHoYoConfig.SLAT);
         this.pool = executor;
@@ -241,7 +241,7 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
      * @param post
      */
     public boolean sharePost(PostResult post) {
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getForumId()), getHeaders());
+        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getId()), getHeaders());
         if ("OK".equals(result.get("message"))) {
             return true;
         } else {

@@ -28,7 +28,7 @@ public class GenShinSignMiHoYo extends MiHoYoAbstractSign {
         super(cookie);
         setClientType(MiHoYoConfig.CLIENT_TYPE);
         setAppVersion(MiHoYoConfig.APP_VERSION);
-        setSalt(MiHoYoConfig.SLAT);
+        setSalt(MiHoYoConfig.SLAT_WEB);
     }
 
     @Override
