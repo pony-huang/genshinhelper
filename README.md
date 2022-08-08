@@ -110,23 +110,24 @@ account:
 
 4. shell
 
-配置参数config路径，window如例，`-Dgenshin.config=F:/config.yaml`。
+配置参数config路径，如`-Dgenshin.config=/opt/config.yaml`。
 
+crontab 设置
 ```shell
 30 10 * * *  java -jar -Dgenshin.config=/opt/config.yaml genshin-helper-3.0.0.jar
 ```
 
-### 腾讯云函数执行 （推荐）
+### 腾讯云函数执行
 
 [文档](./doc/腾讯云函数.md)
 
 # 更新
 
+- 更新加密盐，修复部分bbs签到失效，原神米哈游签到失败
 - 支持多大别野、崩坏3、未定事件薄频道签到
 - 修正Server酱·Turbo链接
 - 更新腾讯云函数支持日志推送
 - 添加腾讯云函数
-- 添加傻瓜式启动方式
 - 添加线程优化
 - 支持多账号获取cookie
 - 支持多账号签到
