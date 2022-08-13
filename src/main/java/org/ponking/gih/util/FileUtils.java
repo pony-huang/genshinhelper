@@ -1,5 +1,6 @@
 package org.ponking.gih.util;
 
+import org.ponking.gih.sign.Constant;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -14,6 +15,17 @@ import java.util.Map;
  */
 public class FileUtils {
 
+    public static final String LOG_FILE_PATH;
+
+    static {
+        // 默认目录,因为云腾讯函数，只能在/tmp有读取日志权限，故手动设置腾讯云函数使用/tmp
+        if (System.getProperty(Constant.GENSHIN_ENV_LOG_PATH).equals(Constant.ENV_TENCENT_LOG_PATH)) {
+            LOG_FILE_PATH = Constant.ENV_TENCENT_LOG_PATH;
+        } else {
+            String baseDir = System.getProperty("user.dir");
+            LOG_FILE_PATH = baseDir + File.separator + "logs";
+        }
+    }
 
     private FileUtils() {
     }

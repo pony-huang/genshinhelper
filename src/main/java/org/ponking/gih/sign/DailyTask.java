@@ -16,9 +16,8 @@ import org.ponking.gih.util.FileUtils;
 import org.ponking.gih.util.StringUtils;
 
 import java.io.File;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 
@@ -26,7 +25,7 @@ import java.util.concurrent.CountDownLatch;
  * @Author ponking
  * @Date 2021/5/31 15:54
  */
-public class DailyTask implements Runnable {
+public class DailyTask implements Runnable, Callable<MessageTask> {
 
     private static final Logger log = LogManager.getLogger(DailyTask.class);
 
@@ -58,6 +57,10 @@ public class DailyTask implements Runnable {
         this.miHoYoSign = miHoYoSign;
         this.messagePush = messagePush;
         this.signMode = signMode;
+    }
+
+    public String getThreadTaskName() {
+        return this.genShinSign.getUid();
     }
 
     /**
@@ -115,14 +118,10 @@ public class DailyTask implements Runnable {
     @SneakyThrows
     @Override
     public void run() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//        log.info("Time:{} ,Os:{}", dtf.format(LocalDateTime.now()), System.getProperty(Constant.GENSHIN_EXEC));
         work();
     }
 
     public void doDailyTask(CountDownLatch countDownLatch) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//        log.info("开始执行时间[ {} ],执行环境[ {} ]", dtf.format(LocalDateTime.now()), System.getProperty(Constant.GENSHIN_EXEC));
         work();
         countDownLatch.countDown();
     }
@@ -157,15 +156,28 @@ public class DailyTask implements Runnable {
         if (Objects.nonNull(genShinSign)) {
             genShinSign.doSign();
         }
-        if (Objects.nonNull(messagePush)) {
-            String fileName = Thread.currentThread().getName() + ".log";
-            //System.getProperty(Constant.GENSHIN_ENV_LOG_PATH) 根据执行（腾讯云）环境，获取日志文件路径
-            messagePush.sendMessage("原神签到", FileUtils.loadDaily(logFilePath + File.separator + fileName));
-        }
+//        if (Objects.nonNull(messagePush)) {
+//            String fileName = getFileName();
+//            messagePush.sendMessage("原神签到", FileUtils.loadDaily(logFilePath + File.separator + fileName));
+//        }
+    }
+
+    private String getFileName() {
+        return Thread.currentThread().getName() + ".log";
+    }
+
+    public MessagePush getMessagePush() {
+        return messagePush;
     }
 
     public static DailyTaskBuilder builder() {
         return new DailyTaskBuilder();
+    }
+
+    @Override
+    public MessageTask call() throws Exception {
+        work();
+        return new MessageTask(this.messagePush, getFileName());
     }
 
 

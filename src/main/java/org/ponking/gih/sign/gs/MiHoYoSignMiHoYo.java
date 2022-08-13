@@ -34,12 +34,12 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
     /**
      * 浏览帖子数
      */
-    private final static int VIEW_NUM = 5;
+    private final static int VIEW_NUM = 10;
 
     /**
      * 点赞帖子数
      */
-    private final static int UP_VOTE_NUM = 5;
+    private final static int UP_VOTE_NUM = 10;
 
     /**
      * 分享帖子数
@@ -73,14 +73,18 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
     public void doSign() throws Exception {
         log.info("{}社区签到任务开始", hub.getName());
         sign();
-        List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
-        genShinHomePosts.addAll(homePosts);
+
+        if(hub.equals(MiHoYoConfig.HubsEnum.YS.getGame())){
+            List<PostResult> genShinHomePosts = getGenShinHomePosts();
+            homePosts.addAll(genShinHomePosts);
+        }
+
 //        log.info("{}获取社区帖子数: {}", hub.getName(), genShinHomePosts.size());
         //执行任务
-        Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, genShinHomePosts));
-        Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, genShinHomePosts));
-        Future<Integer> upf = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts));
+        Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, homePosts));
+        Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, homePosts));
+        Future<Integer> upf = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, homePosts));
         //打印日志
 //        log.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
 //        log.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
@@ -92,14 +96,18 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
     public void doSingleThreadSign() throws Exception {
         sign();
-        List<PostResult> genShinHomePosts = getGenShinHomePosts();
         List<PostResult> homePosts = getPosts();
-        genShinHomePosts.addAll(homePosts);
+
+        if(hub.equals(MiHoYoConfig.HubsEnum.YS.getGame())){
+            List<PostResult> genShinHomePosts = getGenShinHomePosts();
+            homePosts.addAll(genShinHomePosts);
+        }
+
 //        log.info("{}获取社区帖子数: {}", hub.getName(), genShinHomePosts.size());
         //执行任务
-        Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM, genShinHomePosts);
-        Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM, genShinHomePosts);
-        Callable<Integer> upVotePost = createTask(this, "upVotePost", UP_VOTE_NUM, genShinHomePosts);
+        Callable<Integer> viewPost = createTask(this, "viewPost", VIEW_NUM, homePosts);
+        Callable<Integer> sharePost = createTask(this, "sharePost", SHARE_NUM, homePosts);
+        Callable<Integer> upVotePost = createTask(this, "upVotePost", UP_VOTE_NUM, homePosts);
 
         FutureTask<Integer> vpf = new FutureTask<Integer>(viewPost);
         FutureTask<Integer> upf = new FutureTask<Integer>(upVotePost);
@@ -131,6 +139,8 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         int sc = 0;
         // 保证每个浏览(点赞，分享)的帖子不重复
         HashSet<Object> set = new HashSet<>(num);
+        // 失败次数超过5次跳出循环
+        int fail = 0;
         for (int i = 0; i < num; i++) {
             int index = 0;
             while (set.contains(index)) {
@@ -138,8 +148,15 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
             }
             set.add(index);
             try {
-                method.invoke(obj, posts.get(index));
-                sc++;
+                JSONObject result = (JSONObject) method.invoke(obj, posts.get(index));
+//                log.info(result);
+                if ("OK".equals(result.get("message"))) {
+                    sc++;
+                } else if (fail == 5) {
+                    break;
+                } else {
+                    fail++;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -194,7 +211,8 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
         JSONObject result = HttpUtils.doGet(url, getHeaders());
         if ("OK".equals(result.get("message"))) {
             JSONArray jsonArray = result.getJSONObject("data").getJSONArray("list");
-            return JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {});
+            return JSON.parseObject(JSON.toJSONString(jsonArray), new TypeReference<List<PostResult>>() {
+            });
         } else {
             throw new Exception("帖子数为空，请查配置并更新！！！");
         }
@@ -206,16 +224,11 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
      *
      * @param post
      */
-    public boolean viewPost(PostResult post) {
+    public JSONObject viewPost(PostResult post) {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, hub.getForumId()), getHeaders(), data);
-        if ("OK".equals(result.get("message"))) {
-            return true;
-        } else {
-            return false;
-        }
+        return HttpUtils.doGet(String.format(MiHoYoConfig.HUB_VIEW_URL, hub.getForumId()), getHeaders(), data);
     }
 
     /**
@@ -223,16 +236,11 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
      *
      * @param post
      */
-    public boolean upVotePost(PostResult post) {
+    public JSONObject upVotePost(PostResult post) {
         Map<String, Object> data = new HashMap<>();
         data.put("post_id", post.getPost().getPost_id());
         data.put("is_cancel", false);
-        JSONObject result = HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getHeaders(), data);
-        if ("OK".equals(result.get("message"))) {
-            return true;
-        } else {
-            return false;
-        }
+        return HttpUtils.doPost(MiHoYoConfig.HUB_VOTE_URL, getHeaders(), data);
     }
 
     /**
@@ -240,13 +248,8 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
      *
      * @param post
      */
-    public boolean sharePost(PostResult post) {
-        JSONObject result = HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getId()), getHeaders());
-        if ("OK".equals(result.get("message"))) {
-            return true;
-        } else {
-            return false;
-        }
+    public JSONObject sharePost(PostResult post) {
+        return HttpUtils.doGet(String.format(MiHoYoConfig.HUB_SHARE_URL, hub.getId()), getHeaders());
     }
 
 
