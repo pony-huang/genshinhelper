@@ -37,9 +37,8 @@ public class SignMain {
     public static void main(String[] args) throws Exception {
         System.setProperty(Constant.GENSHIN_ENV_LOG_PATH, Constant.ENV_DEFAULT_LOG_PATH);
         System.setProperty(Constant.GENSHIN_EXEC, System.getProperty("os.name"));
-//        String config = getConfig(Constant.ENV_DEFAULT_CONFIG_PATH);
-        GenshinHelperProperties properties = FileUtils.loadConfig("D:\\Java_Projects\\PonKing\\genshi-helper\\conf\\config.yaml");
-//        GenshinHelperProperties properties = FileUtils.loadConfig(config);
+        String config = getConfig(Constant.ENV_DEFAULT_CONFIG_PATH);
+        GenshinHelperProperties properties = FileUtils.loadConfig(config);
         exec(properties);
     }
 
