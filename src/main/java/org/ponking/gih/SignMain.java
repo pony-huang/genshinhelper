@@ -73,9 +73,10 @@ public class SignMain {
                 all = all & done;
                 if (done) {
                     MessageTask messageTask = (MessageTask) future.get();
-                    if (Objects.nonNull(messageTask) && Objects.nonNull(messageTask.getMessagePush())) {
+                    if (Objects.nonNull(messageTask) && Objects.nonNull(messageTask.getMessagePush()) && !messageTask.isPush()) {
                         String fileName = messageTask.getFileName();
                         messageTask.getMessagePush().sendMessage("原神签到", FileUtils.loadDaily(FileUtils.LOG_FILE_PATH + File.separator + fileName));
+                        messageTask.setPush(true);
                     }
                 } else {
                     TimeUnit.SECONDS.sleep(2L);

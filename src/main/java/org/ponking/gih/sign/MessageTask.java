@@ -13,10 +13,13 @@ public class MessageTask {
 
     private String fileName;
 
+    private boolean push;
+
 
     public MessageTask(MessagePush messagePush, String fileName) {
         this.messagePush = messagePush;
         this.fileName = fileName;
+        this.push = false;
     }
 
     public MessagePush getMessagePush() {
@@ -33,5 +36,13 @@ public class MessageTask {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public boolean isPush() {
+        return push;
+    }
+
+    public void setPush(boolean push) {
+        this.push = push;
     }
 }
