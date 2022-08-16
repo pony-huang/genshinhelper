@@ -22,8 +22,8 @@ public class WeixinCPMessagePush implements MessagePush {
 
 
     @Override
-    public void sendMessage(String title, String desp) {
-        sendMessageCardType(title, desp);
+    public void sendMessage(String title, String deps) {
+        sendMessageCardType(title, deps);
     }
 
 

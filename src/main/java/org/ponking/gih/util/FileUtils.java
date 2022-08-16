@@ -19,7 +19,7 @@ public class FileUtils {
 
     static {
         // 默认目录,因为云腾讯函数，只能在/tmp有读取日志权限，故手动设置腾讯云函数使用/tmp
-        if (System.getProperty(Constant.GENSHIN_ENV_LOG_PATH).equals(Constant.ENV_TENCENT_LOG_PATH)) {
+        if (Constant.ENV_TENCENT_LOG_PATH.equals(System.getProperty(Constant.GENSHIN_ENV_LOG_PATH))) {
             LOG_FILE_PATH = Constant.ENV_TENCENT_LOG_PATH;
         } else {
             String baseDir = System.getProperty("user.dir");

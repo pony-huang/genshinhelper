@@ -28,4 +28,6 @@ public class Constant {
 
     public static final String MODE_WEIXIN_CP_CHAN = "weixincp";
 
+    public static final String MODE_EMAIL_CHAN = "email";
+
 }

@@ -1,23 +1,43 @@
 # 工具简介
-
 米哈游mihoyo原神签到福利、社区每日签到。 支持多大别野、崩坏3、未定事件薄频道签到
 
 # 日志推送方式
-
 - [Server酱](https://sct.ftqq.com/upgrade?fr=sc)
-- 微信企业个人推送（推荐）
-- Server酱·Turbo暂支持企业微信应用消息消息通道(不推荐)
+- 微信企业个人推送
+- Server酱·Turbo暂支持企业微信应用消息消息通道
+- 邮件推送
 
 ## 微信企业个人推送
-
-![](./images/img_2.png)
+[//]: # (![]&#40;./images/img_2.png &#41;)
+<img src="./images/img_2.png" width="30%" height="30%" alt="./images/img_2.png"/>
 
 **新建微信企业教程：**
-[参考链接](https://www.88ksk.cn/blog/article/26.html)
-
+- [参考链接](https://www.88ksk.cn/blog/article/26.html)
 - 首先需要注册一个[企业微信](https://work.weixin.qq.com) 。
 - 进入管理后台，选择应用管理，然后选择创建应用。
 - 创建好后，得到 AgentId 和 Secret 两个值，再回到企业微信后台，选择我的企业，翻到最底下，得到企业ID
+
+## 邮件推送
+**注意目前仅支持smtp协议**
+sender配置：
+```yaml
+hostName: smtp.test.com
+port: 465
+username: test@test.com
+password: 123456
+```
+
+receiver配置(账号指定邮件)：
+```yaml
+   - cookie: xxxx
+     stuid: xxxx
+     stoken: xxxx
+     toUser: xxxx
+     email: test@test.com
+     pushType: email
+```
+`pushType: email` 指定推送类型，若不配置pushType，默认走mode。
+
 
 # 使用说明
 
@@ -97,15 +117,23 @@ corpid: xxxxx
 signMode: ys, dby, bh3 # ys 原神, dby 大别野, bh3 崩坏3, wd未定事件薄
 corpsecret: xxxxx
 agentid: xxxxx
+hostName: smtp.qq.com
+port: 465
+username: xxxxxxxx
+password: xxxxxxxxxxxx
 account:
    - cookie: xxxx
      stuid: xxxx
      stoken: xxxx
      toUser: xxxx
+     email: xxxx
+     pushType: email
    - cookie: xxxx
      stuid: xxxx
      stoken: xxxx
      toUser: xxxx
+     email: xxxx
+     pushType: email
 ```
 
 4. shell
@@ -123,6 +151,7 @@ crontab 设置
 
 # 更新
 
+- 新增邮件推送
 - 更新加密盐，修复部分bbs签到失效，原神米哈游签到失败
 - 支持多大别野、崩坏3、未定事件薄频道签到
 - 修正Server酱·Turbo链接

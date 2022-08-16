@@ -21,8 +21,8 @@ public class ServerChanTurboMessagePush implements MessagePush {
     }
 
     @Override
-    public void sendMessage(String title, String desp) {
-        String url = getServerGirl(title, desp);
+    public void sendMessage(String title, String deps) {
+        String url = getServerGirl(title, deps);
         HttpUtils.doPost(url, new Header[0], null);
     }
 

@@ -9,6 +9,8 @@ import org.ponking.gih.sign.GenTaskThreadFactory;
 import org.ponking.gih.sign.MessageTask;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.util.FileUtils;
+import org.ponking.gih.util.MailUtil;
+import org.ponking.gih.util.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -66,17 +68,27 @@ public class SignMain {
             futures.add(executor.submit((Callable<? extends Object>) task));
         }
 
+        if (StringUtils.isNotEmpty(properties.getUsername()) &&
+                StringUtils.isNotEmpty(properties.getPassword()) &&
+                StringUtils.isNotEmpty(properties.getHostName()) &&
+                Objects.nonNull(properties.getPort())) {
+            MailUtil.init(properties.getUsername(), properties.getPassword(), properties.getPort(), properties.getHostName());
+        }
+
         while (true) {
             boolean all = true;
             for (Future future : futures) {
                 boolean done = future.isDone();
                 all = all & done;
                 if (done) {
-                    MessageTask messageTask = (MessageTask) future.get();
-                    if (Objects.nonNull(messageTask) && Objects.nonNull(messageTask.getMessagePush()) && !messageTask.isPush()) {
-                        String fileName = messageTask.getFileName();
-                        messageTask.getMessagePush().sendMessage("原神签到", FileUtils.loadDaily(FileUtils.LOG_FILE_PATH + File.separator + fileName));
-                        messageTask.setPush(true);
+                    Object obj = future.get();
+                    if (Objects.nonNull(obj)) {
+                        MessageTask messageTask = (MessageTask) obj;
+                        if (Objects.nonNull(messageTask.getMessagePush()) && !messageTask.isPush()) {
+                            String fileName = messageTask.getFileName();
+                            messageTask.getMessagePush().sendMessage("原神签到", FileUtils.loadDaily(FileUtils.LOG_FILE_PATH + File.separator + fileName));
+                            messageTask.setPush(true);
+                        }
                     }
                 } else {
                     TimeUnit.SECONDS.sleep(2L);
@@ -126,21 +138,55 @@ public class SignMain {
         List<DailyTask> tasks = new ArrayList<>();
         if (properties != null) {
             for (GenshinHelperProperties.Account account : properties.getAccount()) {
-                DailyTask task = DailyTask.builder()
+                DailyTask.DailyTaskBuilder dailyTaskBuilder = DailyTask.builder()
                         .account(account.getCookie())
                         .miHoYoSign(account)
-                        .signMode(properties.getSignMode())
-                        .msgPush(properties.getMode(),
-                                properties.getSckey(),
-                                properties.getCorpid(),
-                                properties.getCorpsecret(),
-                                properties.getAgentid(),
-                                account.getToUser())
-                        .build();
+                        .signMode(properties.getSignMode());
+                String priorityMode = StringUtils.isNotEmpty(account.getPushType()) ? account.getPushType() : properties.getMode();
+                buildPush(priorityMode, dailyTaskBuilder, properties, account);
+                DailyTask task = dailyTaskBuilder.build();
                 tasks.add(task);
             }
         }
         return tasks;
+    }
+
+    public static void buildPush(String priorityMode,
+                                 DailyTask.DailyTaskBuilder dailyTaskBuilder,
+                                 GenshinHelperProperties properties,
+                                 GenshinHelperProperties.Account account) {
+        switch (priorityMode) {
+            case Constant.MODE_SERVER_CHAN: {
+                if (StringUtils.isBank(properties.getSckey())) {
+                    throw new RuntimeException("参数有误,scKey尚未配置");
+                }
+                dailyTaskBuilder.serverChanPush(properties.getSckey());
+                break;
+            }
+            case Constant.MODE_SERVER_TURBO_CHAN: {
+                if (StringUtils.isBank(properties.getSckey())) {
+                    throw new RuntimeException("参数有误,scKey尚未配置");
+                }
+                dailyTaskBuilder.serverTurboChanPush(properties.getSckey());
+                break;
+            }
+            case Constant.MODE_WEIXIN_CP_CHAN: {
+                if (StringUtils.isBank(properties.getCorpid()) || StringUtils.isBank(properties.getCorpsecret()) || StringUtils.isBank(properties.getAgentid())) {
+                    throw new RuntimeException("参数有误,scKey尚未配置");
+                }
+                dailyTaskBuilder.weiXinPush(properties.getCorpid(), properties.getCorpsecret(), properties.getAgentid(), account.getToUser());
+                break;
+            }
+            case Constant.MODE_EMAIL_CHAN: {
+                if (StringUtils.isBank(account.getEmail())) {
+                    throw new RuntimeException("参数有误,email尚未配置");
+                }
+                dailyTaskBuilder.mailPush(properties.getUsername(), account.getEmail());
+                break;
+            }
+            default:
+                break;
+        }
     }
 
 }

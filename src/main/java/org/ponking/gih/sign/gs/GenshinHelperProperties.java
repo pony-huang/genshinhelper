@@ -30,6 +30,16 @@ public class GenshinHelperProperties implements Serializable {
 
     private String cron;
 
+    private String hostName;
+
+    private Integer port;
+
+    private String protocol;
+
+    private String password;
+
+    private String username;
+
 
     @Data
     public static class Account {
@@ -41,5 +51,9 @@ public class GenshinHelperProperties implements Serializable {
         private String stoken;
 
         private String toUser;
+
+        private String email;
+
+        private String pushType;
     }
 }

@@ -6,5 +6,5 @@ package org.ponking.gih.push;
  */
 public interface MessagePush {
 
-    void sendMessage(String text,String desp);
+    void sendMessage(String text,String deps);
 }

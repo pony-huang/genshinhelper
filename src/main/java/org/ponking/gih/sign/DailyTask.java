@@ -3,16 +3,12 @@ package org.ponking.gih.sign;
 import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ponking.gih.push.MessagePush;
-import org.ponking.gih.push.ServerChanMessagePush;
-import org.ponking.gih.push.ServerChanTurboMessagePush;
-import org.ponking.gih.push.WeixinCPMessagePush;
+import org.ponking.gih.push.*;
 import org.ponking.gih.server.weixincp.service.WXUserInfo;
 import org.ponking.gih.sign.gs.GenShinSignMiHoYo;
 import org.ponking.gih.sign.gs.GenshinHelperProperties;
 import org.ponking.gih.sign.gs.MiHoYoConfig;
 import org.ponking.gih.sign.gs.MiHoYoSignMiHoYo;
-import org.ponking.gih.util.FileUtils;
 import org.ponking.gih.util.StringUtils;
 
 import java.io.File;
@@ -220,6 +216,33 @@ public class DailyTask implements Runnable, Callable<MessageTask> {
                 default:
                     break;
             }
+            return this;
+        }
+
+        public DailyTaskBuilder serverChanPush(String scKey) {
+            if (StringUtils.isBank(scKey)) {
+                throw new RuntimeException("参数有误");
+            }
+            messagePush = new ServerChanMessagePush(scKey);
+            return this;
+        }
+
+        public DailyTaskBuilder serverTurboChanPush(String scKey) {
+            if (StringUtils.isBank(scKey)) {
+                throw new RuntimeException("参数有误");
+            }
+            messagePush = new ServerChanTurboMessagePush(scKey);
+            return this;
+        }
+
+        public DailyTaskBuilder weiXinPush(String corpId, String corpSecret, String agentId, String toUser) {
+            WXUserInfo wxUserInfo = new WXUserInfo(corpId, corpSecret, agentId, toUser);
+            messagePush = new WeixinCPMessagePush(wxUserInfo);
+            return this;
+        }
+
+        public DailyTaskBuilder mailPush(String from,String to) {
+            messagePush = new MailMessagePush(from,to);
             return this;
         }
 

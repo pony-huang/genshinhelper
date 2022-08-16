@@ -9,6 +9,7 @@ import java.util.Map;
  * @Author ponking
  * @Date 2021/5/7 14:49
  */
+@Deprecated
 public class ServerChanMessagePush implements MessagePush {
 
     private final String scKey;
@@ -20,11 +21,11 @@ public class ServerChanMessagePush implements MessagePush {
     }
 
     @Override
-    public void sendMessage(String text, String desp) {
+    public void sendMessage(String text, String deps) {
         Map<String, Object> data = new HashMap<>();
         data.put("text", text);
-        data.put("desp", desp);
-        HttpUtils.doGetDefault(getServerGirl(text, desp));
+        data.put("desp", deps);
+        HttpUtils.doGetDefault(getServerGirl(text, deps));
     }
 
     public String getServerGirl(String text, String desp) {
