@@ -33,8 +33,6 @@ public class DailyTask implements Runnable, Callable<MessageTask> {
 
     private String[] signMode;
 
-    private String logFilePath = null;
-
     private DailyTask(DailyTaskBuilder builder) {
         this(builder.genShinSign, builder.miHoYoSign, builder.messagePush, builder.signMode);
     }
@@ -102,11 +100,12 @@ public class DailyTask implements Runnable, Callable<MessageTask> {
 
     private void init() {
         // 默认目录,因为云腾讯函数，只能在/tmp有读取日志权限，故手动设置腾讯云函数使用/tmp
+        String logFilePath = null;
         if (System.getProperty(Constant.GENSHIN_ENV_LOG_PATH).equals(Constant.ENV_TENCENT_LOG_PATH)) {
-            this.logFilePath = Constant.ENV_TENCENT_LOG_PATH;
+            logFilePath = Constant.ENV_TENCENT_LOG_PATH;
         } else {
             String baseDir = System.getProperty("user.dir");
-            this.logFilePath = baseDir + File.separator + "logs";
+            logFilePath = baseDir + File.separator + "logs";
         }
     }
 

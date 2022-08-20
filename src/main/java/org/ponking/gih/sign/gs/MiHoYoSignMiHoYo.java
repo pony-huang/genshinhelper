@@ -71,34 +71,18 @@ public class MiHoYoSignMiHoYo extends MiHoYoAbstractSign {
 
     @Override
     public void doSign() throws Exception {
-        log.info("{}社区签到任务开始", hub.getName());
-        sign();
-        List<PostResult> homePosts = getPosts();
-
-        if(hub.equals(MiHoYoConfig.HubsEnum.YS.getGame())){
-            List<PostResult> genShinHomePosts = getGenShinHomePosts();
-            homePosts.addAll(genShinHomePosts);
-        }
-
-//        log.info("{}获取社区帖子数: {}", hub.getName(), genShinHomePosts.size());
-        //执行任务
-        Future<Integer> vpf = pool.submit(createTask(this, "viewPost", VIEW_NUM, homePosts));
-        Future<Integer> spf = pool.submit(createTask(this, "sharePost", SHARE_NUM, homePosts));
-        Future<Integer> upf = pool.submit(createTask(this, "upVotePost", UP_VOTE_NUM, homePosts));
-        //打印日志
-//        log.info("浏览帖子,成功: {},失败：{}", vpf.get(), VIEW_NUM - vpf.get());
-//        log.info("点赞帖子,成功: {},失败：{}", upf.get(), UP_VOTE_NUM - upf.get());
-//        log.info("分享帖子,成功: {},失败：{}", spf.get(), SHARE_NUM - spf.get());
-//        pool.shutdown();  会导致阻塞
-        log.info("{}社区签到任务完成", hub.getName());
+        doSingleThreadSign();
     }
 
-
     public void doSingleThreadSign() throws Exception {
-        sign();
+        try {
+            sign();
+        } catch (Exception e) {
+            log.error("{}社区签到失败，error：{}", hub.getName(), e.getCause());
+        }
         List<PostResult> homePosts = getPosts();
 
-        if(hub.equals(MiHoYoConfig.HubsEnum.YS.getGame())){
+        if (hub.equals(MiHoYoConfig.HubsEnum.YS.getGame())) {
             List<PostResult> genShinHomePosts = getGenShinHomePosts();
             homePosts.addAll(genShinHomePosts);
         }

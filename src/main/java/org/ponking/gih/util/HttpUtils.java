@@ -105,7 +105,7 @@ public class HttpUtils {
                 String result = EntityUtils.toString(response.getEntity());
                 resultJson = JSON.parseObject(result);
             } else {
-                logger.warn(response.getStatusLine().getStatusCode() + "配置已失效，请更新配置信息");
+                logger.warn(response.getStatusLine().getStatusCode() + ",配置已失效，请更新配置信息");
             }
             return resultJson;
         } catch (IOException e) {
