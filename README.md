@@ -161,6 +161,11 @@ crontab 设置
 - 支持多账号获取cookie
 - 支持多账号签到
 
+### 注意
+> 上个仓库被ban掉了,被GitHub识别滥用action.
+> fork后不要设置action.
+> 项目可能以后不会再更新,重新上传备份.
+>
 # 感谢
 
 - [genshin-auto-login](https://github.com/Viole403/genshin-auto-login)
