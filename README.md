@@ -1,6 +1,10 @@
 # 工具简介
 米哈游mihoyo原神签到福利、社区每日签到。 支持多大别野、崩坏3、未定事件薄频道签到
-
+**注意：**
+> 上个仓库被ban掉了,被GitHub识别滥用action.
+> fork后不要设置action.
+> 项目可能以后不会再更新,重新上传备份.
+>
 # 日志推送方式
 - [Server酱](https://sct.ftqq.com/upgrade?fr=sc)
 - 微信企业个人推送
@@ -161,11 +165,6 @@ crontab 设置
 - 支持多账号获取cookie
 - 支持多账号签到
 
-### 注意
-> 上个仓库被ban掉了,被GitHub识别滥用action.
-> fork后不要设置action.
-> 项目可能以后不会再更新,重新上传备份.
->
 # 感谢
 
 - [genshin-auto-login](https://github.com/Viole403/genshin-auto-login)
